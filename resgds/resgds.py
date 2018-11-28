@@ -23,6 +23,36 @@ class Shapes:
         return [(r*np.cos(i) + x0, r*np.sin(i) + y0)
                 for i in np.linspace(theta0, thetaf, n)]
 
+    def halfarc(self,r, w, x0, y0, orientation='E', npoints=40):
+        ''' 
+        List of tuples.
+        A half circle trench of width w, the inner side of which is a circle with
+        radius r and centre (x0, y0). Different orientations of points of compass
+        with 'N' meaning that the semicircle is an arc that looks like a rainbow.
+        '''
+        if orientation == 'N':
+            t0=0
+            tf=np.pi
+        elif orientation == 'E':
+            t0=-np.pi/2
+            tf=np.pi/2
+        elif orientation == 'W':
+            t0=np.pi/2
+            tf=3*np.pi/2
+        elif orientation == 'S':
+            t0=np.pi
+            tf=2*np.pi
+
+        inner = self.circ_arc(r, x0, y0, n=npoints, theta0=t0, thetaf=tf)
+        outer = self.circ_arc(r + w, x0, y0, n=npoints, theta0=t0, thetaf=tf)[::-1]
+
+        return inner + outer
+
+    def halfarc_trench(self,r, width, gap, x0, y0, orient='E', npoints=40):
+        inside = self.halfarc(r, gap, x0, y0, orientation=orient, npoints=npoints)
+        outside = self.halfarc(r + gap + width, gap, x0, y0, orientation=orient, npoints=npoints)
+        return [inside, outside]
+    
     def quarterarc(self, r, w, x0, y0, orientation='NE', npoints=20):
         if orientation == 'NE':
             t0=0
@@ -95,6 +125,15 @@ class Trench(Shapes):
 
     def quarterarc_trench(self, r, x0, y0, orient='NE', npoints=20):
         trench_list = super().quarterarc_trench(r, self.__width,
+                self.__gap,x0,y0,orient=orient,npoints=npoints)
+        t1 = gdspy.Polygon(trench_list[0],self.__layer)
+        t2 = gdspy.Polygon(trench_list[1],self.__layer)
+        self.__cell.add(t1)
+        self.__cell.add(t2)
+        return
+
+    def halfarc_trench(self, r, x0, y0, orient='E', npoints=40):
+        trench_list = super().halfarc_trench(r, self.__width,
                 self.__gap,x0,y0,orient=orient,npoints=npoints)
         t1 = gdspy.Polygon(trench_list[0],self.__layer)
         t2 = gdspy.Polygon(trench_list[1],self.__layer)

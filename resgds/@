@@ -8,19 +8,6 @@ import numpy as np
 from subprocess import call # Use to call kaloput_viewer bash script
 import psutil # Use to check if klayout is running already   
 
-def section_lengths(length,width,gap,radius):
-    r1 = radius+gap
-    r2 = r1 + width
-    r3 = r2 + gap
-    
-    al1,al2,al3 = .5*[np.pi*r1, np.pi*r2, np.pi*r3]
-    arclength = al3 - al2 -al1
-    remain_length = length - 2*arclength
-
-    l1,l2,l3 = [remain_length/6, remain_length/2, remain_length/3]
-    print(l1+l2+l3 + 2*arclength)
-    return l1, l2, l3
-
 # Layout filename
 layout_file = 'bragg.gds'
 
@@ -30,17 +17,13 @@ sub_y = 10000
 wc = 200 #8.11  Length of cavity
 gc = 200 #17.85  Gap b/w conductor and substrate
 lc = 8108.45 # Conductor width of cavity
-
 wlow = 300  #30.44 Width of low impedance section
 glow = 150 #6.685 Gap of low impedance section
 llow = 4051.32
-
 whigh = 50 #2
 ghigh = 200 #20.905
-lhigh = 4051.32
-
-rext = 0 # extrude radius
-rlow = 50 # Radius of low impedance section
+rlow = 0 # Radius of low impedance section
+nturns = 3 # Number of turns in quarter wavelength sections
 
 # Setup gds cell and gds object
 poly_cell = gdspy.Cell('POLYGONS')
@@ -51,7 +34,7 @@ sub = BuildRect(poly_cell, sub_x, sub_y, layer=0)
 sub.make(0,0)
 
 coords = lambda x,dx=0: x+dx
-#l1, l2, l3 = section_lengths(llow,wlow,glow,rext)
+#l1, l2, l3 = section_lengths()
 
 # Centre Cavity [layer 1]
 x0, y0 = [coords(sub_x/2, -lc/2), coords(sub_y/2, -2*(wc/2) - gc/2)]
@@ -61,29 +44,41 @@ cavity.straight_trench(lc, x0, y0, orient='H')
 
 # Low Impedance Sections [layer 1]
 Zlow = Trench(wlow, glow, poly_cell, layer=1)
-Zlow.halfarc_trench(rlow, x0, y0, orient='W', npoints=20)
+Zlow.quarterarc_trench(rlow, x0, y0, orient='NW', npoints=20)
 
 # Low Z LHS extrusion straight trench
-#x1,y1 = [coords(x0,-wlow-2*glow), coords(y0, -1000)]
-#Zlow.straight_trench(1000, x1, y1, orient='V')
+x1,y1 = [coords(x0,-wlow-2*glow), coords(y0, -1000)]
+Zlow.straight_trench(1000, x1, y1, orient='V')
 
-#x2,y2 = [coords(x1, wlow+2*glow),coords(y1)]
-#Zlow.quarterarc_trench(rlow, x2, y2, orient='SW', npoints=20)
+# Low Z extrusion arc from straight section
+x2,y2 = [coords(x1, wlow+2*glow),coords(y1)]
+Zlow.quarterarc_trench(rlow, x2, y2, orient='SW', npoints=20)
 
-#x3,y3 = [coords(x2),coords(y2,-wlow-2*glow)]
-#Zlow.straight_trench(1000, x3, y3, orient='H')
+# Low Z extrusion straight section from arc
+x3,y3 = [coords(x2),coords(y2,-wlow-2*glow)]
+Zlow.straight_trench(1000, x3, y3, orient='H')
 
-#x4,y4 = [coords(x3 + 1000),coords(y3)]
-#Zlow.quarterarc_trench(rext, x4, y4, orient='NE', npoints=20)
+# Low Z extrusion arc fro straight section
+x4,y4 = [coords(x3 + 1000),coords(y3)]
+Zlow.quarterarc_trench(rlow, x4, y4, orient='NE', npoints=20)
 
-#x5,y5 = [coords(x4),coords(y4,-2400)]
-#Zlow.straight_trench(2400, x5, y5, orient='V')
+# Low Z straight extrusion
+x5,y5 = [coords(x4),coords(y4,-2400)]
+Zlow.straight_trench(2400, x5, y5, orient='V')
 
-#x6,y6 = [coords(x5, wlow + 2*glow + 50),coords(y5)]
-#Zlow.halfarc_trench(rlow,x6,y6,orient='S',npoints=40)
+x6,y6 = [coords(x5, wlow + 2*glow),coords(y5)]
+Zlow.quarterarc_trench(rlow, x6, y6, orient='SW', npoints=20)
 
-#x7,y7 = [coords(x6,rlow),coords(y6)]
-#Zlow.straight_trench(1000, x7, y7, orient='V')
+x7,y7 = [coords(x6),coords(y6,-wlow-2*glow)]
+Zlow.straight_trench(400, x7, y7, orient='H')
+
+x8,y8 = [coords(x7,400),coords(y7,wlow+2*glow)]
+Zlow.quarterarc_trench(rlow, x8, y8, orient='SE', npoints=20)
+
+#xl8 = xl7
+#yl8 = yl7 + 1000
+x9,y9 = [coords(x8),coords(y8,1000)]
+Zlow.straight_trench(1000, x9, y9, orient='V')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

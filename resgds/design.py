@@ -2,6 +2,7 @@
 
 import os
 from resgds import *
+import bragg
 import gdspy # gds library
 import numpy as np
 from subprocess import call # Use to call kaloput_viewer bash script

@@ -61,29 +61,20 @@ cavity.straight_trench(lc, x0, y0, orient='H')
 
 # Low Impedance Sections [layer 1]
 Zlow = Trench(wlow, glow, poly_cell, layer=1)
-Zlow.halfarc_trench(rlow, x0, y0, orient='W', npoints=20)
+Zlow.halfarc_trench(rlow, x0, y0-rlow, orient='W', npoints=40)
 
 # Low Z LHS extrusion straight trench
-#x1,y1 = [coords(x0,-wlow-2*glow), coords(y0, -1000)]
-#Zlow.straight_trench(1000, x1, y1, orient='V')
+x1,y1 = [coords(x0), coords(y0,-2*rlow-2*glow-wlow)]
+Zlow.quarterarc_trench(rext,x1,y1,orient='NE',npoints=20)
 
-#x2,y2 = [coords(x1, wlow+2*glow),coords(y1)]
-#Zlow.quarterarc_trench(rlow, x2, y2, orient='SW', npoints=20)
+x2,y2 = [coords(x1),coords(y1,-2000)]
+Zlow.straight_trench(2000, x2, y2, orient='V')
 
-#x3,y3 = [coords(x2),coords(y2,-wlow-2*glow)]
-#Zlow.straight_trench(1000, x3, y3, orient='H')
+x3,y3 = [coords(x2, wlow + 2*glow + rlow),coords(y2)]
+Zlow.halfarc_trench(rlow,x3,y3,orient='S',npoints=40)
 
-#x4,y4 = [coords(x3 + 1000),coords(y3)]
-#Zlow.quarterarc_trench(rext, x4, y4, orient='NE', npoints=20)
-
-#x5,y5 = [coords(x4),coords(y4,-2400)]
-#Zlow.straight_trench(2400, x5, y5, orient='V')
-
-#x6,y6 = [coords(x5, wlow + 2*glow + 50),coords(y5)]
-#Zlow.halfarc_trench(rlow,x6,y6,orient='S',npoints=40)
-
-#x7,y7 = [coords(x6,rlow),coords(y6)]
-#Zlow.straight_trench(1000, x7, y7, orient='V')
+x4,y4 = [coords(x3,rlow),coords(y3)]
+Zlow.straight_trench(1000, x4, y4, orient='V')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

@@ -14,12 +14,13 @@ layout_file = 'test.gds'
 # Parameters
 sub_x = 10000
 sub_y = 10000
+
 wc = 200 #8.11  Length of cavity
 gc = 200 #17.85  Gap b/w conductor and substrate
 lc = 8108.45 # Conductor width of cavity
 
 wlow = 300  #30.44 Width of low impedance section
-glow = 150 #6.685 Gap of low impedance section
+glow = .5*(wc + 2*gc - wlow) #6.685 Gap of low impedance section
 llow = 4051.32
 
 whigh = 50 #2
@@ -47,11 +48,10 @@ highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius = rhigh, layer=1)
 arr_l=np.repeat(np.arange(0,4),2*np.ones(4,dtype=int))
 arr_h=np.append(arr_l[1:],[4], axis=0)
 
-for i in range(len(arr_l)):
-    if i % 2 == 0:
-        lowZ.mirror(x0 + arr_h[i]*highZ.mirror_width() + arr_l[i]*lowZ.mirror_width(), y0)
-    else:   
-        highZ.mirror(x0 + arr_h[i]*highZ.mirror_width() + arr_l[i]*lowZ.mirror_width(), y0)
+make_lowZ = lambda i: lowZ.mirror(x0 + arr_h[i]*highZ.mirror_width() + arr_l[i]*lowZ.mirror_width(), y0)
+make_highZ = lambda i: highZ.mirror(x0 + arr_h[i]*highZ.mirror_width() + arr_l[i]*lowZ.mirror_width(), y0)
+[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 
 # Check if klayout is already running. If not, write gds and open klayout.·
 # If it is, just update the gds file

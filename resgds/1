@@ -2,6 +2,7 @@
 
 import os
 from resgds import *
+import bragg
 import gdspy # gds library
 import numpy as np
 from subprocess import call # Use to call kaloput_viewer bash script
@@ -13,16 +14,27 @@ layout_file = 'bragg.gds'
 # Parameters
 sub_x = 10000
 sub_y = 10000
-wc = 200 #8.11  Length of cavity
-gc = 200 #17.85  Gap b/w conductor and substrate
-lc = 8108.45 # Conductor width of cavity
-wlow = 300  #30.44 Width of low impedance section
-glow = 150 #6.685 Gap of low impedance section
-llow = 4051.32
-whigh = 50 #2
-ghigh = 200 #20.905
-rlow = 0 # Radius of low impedance section
-nturns = 3 # Number of turns in quarter wavelength sections
+
+wc = 8.11 # Conductor width of cavity
+gc = 17.85 # Gap b/w conductor and substrate
+lc = 8108.45 # Length of cavity
+
+wlow = 30.44  # Width of low impedance section
+glow = .5*(wc + 2*gc - wlow) # Gap of low impedance section
+llow = 4051.32 # Length of low impedance section
+
+whigh = 2 # 
+ghigh = .5*(wlow + 2*glow - whigh)
+lhigh = 4051.32
+
+rext = 0 # extrude radius
+rlow = 50 # Radius of low impedance section
+rhigh = 50 # Radius of high impedance section
+
+lext1 = 400 # Lengths of straigh extrude sections
+lext2 = 1200
+
+lext3 = llow - lext1 - lext2 - 500*np.pi - 150*np.pi
 
 # Setup gds cell and gds object
 poly_cell = gdspy.Cell('POLYGONS')
@@ -32,37 +44,56 @@ rs = Shapes(poly_cell)
 sub = BuildRect(poly_cell, sub_x, sub_y, layer=0)
 sub.make(0,0)
 
+coords = lambda x,dx=0: x+dx
+
 # Centre Cavity [layer 1]
-xc0 = sub_x/2 - lc/2 # x_position of cavity
-yc0 = sub_y/2 - 2*(wc/2) - gc/2 # y_position of cavity
+x0, y0 = [coords(sub_x/2, -lc/2), coords(sub_y/2, -2*(wc/2) - gc/2)]
+
 cavity = Trench(wc, gc, poly_cell, layer=1)
-cavity.straight_trench(lc, xc0, yc0, orient='H')
+cavity.straight_trench(lc, x0, y0, orient='H')
 
-# Low Impedance Sections [layer 1]
+# Low Z extrudance from Cavity (LHS) [layer 1]
 Zlow = Trench(wlow, glow, poly_cell, layer=1)
-Zlow.quarterarc_trench(rlow, xc0, yc0, orient='NW', npoints=20)
+Zlow.halfarc_trench(rlow, x0, y0-rlow, orient='W', npoints=40)
+Zlow.halfarc_trench(rlow, sub_x - x0, y0 + rlow + wlow + 2*glow, orient='E', npoints=40)
 
-# Low Z LHS extrusion straight trench
-xl0 = xc0 - wlow-2*glow
-yl0 = yc0 - 1000
-Zlow.straight_trench(1000, xl0, yl0, orient='V')
+x1,y1 = [coords(x0), coords(y0,-2*rlow-2*glow-wlow)]
+Zlow.straight_trench(lext1,x1,y1,orient='H')
+Zlow.straight_trench(lext1,sub_x-x1-lext1,y1+4*rlow + 2*wlow + 4*glow,orient='H')
 
-# Low Z extrusion arc from straight section
-xl1 = xl0 + wlow + 2*glow
-yl1 = yl0
-Zlow.quarterarc_trench(rlow, xl1, yl1, orient='SW', npoints=20)
+x2,y2 = [coords(x0,lext1), coords(y0,-2*rlow-wlow-2*glow)]
+Zlow.quarterarc_trench(rext,x2,y2,orient='NE',npoints=20)
+Zlow.quarterarc_trench(rext,sub_x-x2,sub_y/2,orient='SW',npoints=20)
 
-# Low Z extrusion straight section from arc
-xl2 = xl1
-yl2 = yl1 -wlow - 2*glow
-Zlow.straight_trench(1000, xl2, yl2, orient='H')
+x3,y3 = [coords(x2),coords(y2,-lext2)]
+Zlow.straight_trench(lext2, x3, y3, orient='V')
 
-# Low Z extrusion arc fro straight section
-xl3 = xl2 + wlow + 2*glow
-yl3 = yl2
-#Zlow.quarterarc_trench(rlow, xl3, yl3, orient='NE', npoints=20)
-Zlow.quarterarc_trench(rlow, xl3, yl3, orient='SE', npoints=20)
-#Zlow.quarterarc_trench(rlow, xl3, yl3, orient='SW', npoints=20)
+x4,y4 = [coords(x3, wlow + 2*glow + rlow),coords(y3)]
+Zlow.halfarc_trench(rlow,x4,y4,orient='S',npoints=40)
+
+x5,y5 = [coords(x4,rlow),coords(y4)]
+Zlow.straight_trench(lext3, x5, y5, orient='V')
+
+# Bragg Mirror Sections [layer 1]
+no_periods = 4
+
+xb_strt,yb_strt = [coords(x5),coords(y5,lext3)]
+
+highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=1)
+lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=1)
+
+arr_l = np.repeat(np.arange(0,no_periods),2*np.ones(no_periods,dtype=int))
+arr_h = np.append(arr_l[1:],[no_periods], axis=0)
+
+make_lowZ = lambda i: lowZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
+        + arr_l[i]*lowZ.mirror_width(), yb_strt) 
+make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
+        + arr_l[i]*lowZ.mirror_width(), yb_strt) 
+
+[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
+[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+
+
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

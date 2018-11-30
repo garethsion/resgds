@@ -141,6 +141,28 @@ class Trench(Shapes):
         self.__cell.add(t2)
         return
 
+class LayoutComponents:
+    def __init__(self,cell, x_bound, y_bound,layer=1):
+        self.__xbound = x_bound
+        self.__ybound = y_bound
+        self.__cell = cell
+        self.__layer = layer
+        return
+
+    def antidot_array(self,x_origin, y_origin, w, s, n):
+        return [[(ii*(s + w) + x_origin, jj*(s + w) + y_origin), (ii*(s + w) 
+            + w + x_origin, jj*(s + w) + y_origin),(ii*(s + w) + w + x_origin, 
+                jj*(s + w) + w + y_origin), (ii*(s + w) + x_origin, jj*(s + w) 
+                    + w + y_origin)]
+                   for ii in np.arange(-n, self.__xbound/(s+w) + n, 1)
+                   for jj in np.arange(-n, self.__ybound/(s+w) + n, 1)]
+
+    def make_antidot_array(self,x_origin, y_origin, w, s, n):
+        dots = self.antidot_array(x_origin, y_origin, w, s, n)
+        for i in dots:
+            self.__cell.add(gdspy.Polygon(i, self.__layer))
+            return
+
 class Quarterwave(Shapes):
     def __init__(self):
         super().__init__()

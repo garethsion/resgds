@@ -1,9 +1,16 @@
 #!/usr/bin/env python
 
+"""
+This program is provides the functionality for designing the gds files for Bragg resonators. This requires the resgds library.
+"""
+
 import numpy as np
 from resgds import *
 
 class Bragg:
+    """
+        Contains the methods required for developing gds files for Bragg resonators
+    """
     def __init__(self,width, gap, length, cell, radius=0, layer=0):
         self.__width = width
         self.__gap = gap
@@ -37,6 +44,9 @@ class Bragg:
         self.__mirror.straight_trench(l3,x4,y4,orient='V')
 
     def section_lengths(self):
+        """
+            Method to calculate the lengths of the straight sections of the Bragg mirrors
+        """
         r1 = self.__radius
         r2 = r1 + self.__gap
         r3 = r2 + self.__width
@@ -62,6 +72,9 @@ class Bragg:
 #        return l1, l2, l3
 
     def mirror_width(self):
+        """
+            Method which calculates the total width of the Bragg mirror half period 
+        """
         width = 2*(self.__width + 2*self.__gap + 2*self.__radius)
         return width
 

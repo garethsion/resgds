@@ -45,11 +45,8 @@ sub = BuildRect(poly_cell, sub_x, sub_y, layer=0)
 sub.make(0,0)
 
 # Antidot array [layer 1]
-#layout = LayoutComponents(poly_cell, sub_x, sub_y,layer=1)
-#layout.make_antidot_array(0,0,10,30,0)
-#dots = layout.antidot_array(0,0,10,30,0)
-#for i in dots:
-#    poly_cell.add(gdspy.Polygon(i, 1))
+layout = LayoutComponents(poly_cell, sub_x, sub_y,layer=1)
+layout.make_antidot_array(0,0,10,30,0)
 
 coords = lambda x,dx=0: x+dx
 

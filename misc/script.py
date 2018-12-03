@@ -40,8 +40,6 @@ feedline = feedline[0]
 feedline = [rs.move(i, 1000, 1000) for i in feedline]
 for i in feedline:
     poly_cell.add(gdspy.Polygon(i, 2))
-    
-
 
 #layer 3 & 4- Resonators coarse & fine
 
@@ -53,7 +51,6 @@ feedline_sep = 30
 feedline_top = bond_pad*(2 + ratio) + H + r + central_conductor*(1 + 2*ratio)
 feedline_bot = bond_pad*(2 + ratio) + H + r
 res_cc = 10
-
 
 
 res1 = rs.quarterwave(res_cc, res_cc*ratio, 5, 100, 500, 100, flip_y='True', d_dots=d_dots, constriction=False, SQUID=True)

@@ -18,6 +18,12 @@ class Shapes:
     def move(self,shape, dx, dy):
         return [(i[0] + dx, i[1] + dy) for i in shape]
 
+    def flip(self,shape, axis='y'):
+        if axis =='y':
+            return [(i[0], -i[1]) for i in shape]
+        elif axis =='x':
+            return [(-i[0], i[1]) for i in shape]
+
     def circ_arc(self,r, x0, y0, n=50, theta0=0, thetaf=np.pi/2):
         '''
         List of tuples giving x, y coords of a circular arc from theta_0 to theta_f

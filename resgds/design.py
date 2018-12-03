@@ -90,6 +90,7 @@ Zlow.straight_trench(lext3, x5r, y5r, orient='V')
 no_periods = 4
 
 xb_strt,yb_strt = [coords(x5),coords(y5,lext3)]
+xb_strtr,yb_strtr = [coords(x5r),coords(y5r)]
 
 highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
 lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
@@ -104,6 +105,10 @@ make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
 
 [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+
+[make_highZ(x) for x in range(len(-arr_l)) if x % 2 == 0]
+
+rotate_lowZ = lowZ.rotate_mirror(xb_strtr, yb_strtr)
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

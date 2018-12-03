@@ -49,17 +49,17 @@ class Bragg:
 
         self.__mirror.straight_trench(-l1, x0, y0, orient='V')
 
-        #x1,y1 = [coords(x0,self.__width+2*self.__gap+self.__radius), coords(y0,l1)]
-        #self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='N', npoints=40)
+        x1,y1 = [coords(x0,-self.__radius), coords(y0,-l1)]
+        self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='S', npoints=40)
 
-        #x2,y2 = [coords(x1,self.__radius), coords(y1,-l2)]
-        #self.__mirror.straight_trench(l2,x2,y2,orient='V')
+        x2,y2 = [coords(x1,-2*self.__gap - self.__width - self.__radius), coords(y1)]
+        self.__mirror.straight_trench(l2,x2,y2,orient='V')
 
-        #x3,y3 = [coords(x2,self.__width+2*self.__gap+self.__radius), coords(y2)]
-        #self.__mirror.halfarc_trench(self.__radius, x3, y3, orient='S', npoints=40)
+        x3,y3 = [coords(x2,-self.__radius), coords(y2,l2)]
+        self.__mirror.halfarc_trench(self.__radius, x3, y3, orient='N', npoints=40)
 
-        #x4,y4 = [coords(x3,self.__radius), coords(y3)] 
-        #self.__mirror.straight_trench(l3,x4,y4,orient='V')
+        x4,y4 = [coords(x3,-2*self.__gap - self.__width - self.__radius), coords(y3,-l3)] 
+        self.__mirror.straight_trench(l3,x4,y4,orient='V')
 
     def section_lengths(self):
         """

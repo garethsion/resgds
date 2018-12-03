@@ -106,9 +106,14 @@ make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
 [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
-[make_highZ(x) for x in range(len(-arr_l)) if x % 2 == 0]
+#rotate_lowZ = lowZ.rotate_mirror(xb_strtr, yb_strtr)
+make_rotate_lowZ = lambda i: lowZ.rotate_mirror(xb_strtr - arr_h[i]*highZ.mirror_width()
+        - arr_l[i]*lowZ.mirror_width(), yb_strtr) 
+make_rotate_highZ = lambda i: highZ.rotate_mirror(xb_strtr - arr_h[i]*highZ.mirror_width()
+        - arr_l[i]*lowZ.mirror_width(), yb_strtr) 
 
-rotate_lowZ = lowZ.rotate_mirror(xb_strtr, yb_strtr)
+[make_rotate_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
+[make_rotate_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

@@ -95,25 +95,38 @@ xb_strtr,yb_strtr = [coords(x5r),coords(y5r)]
 highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
 lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
 
+# Vectors to store shifting numbers for making mirrors
 arr_l = np.repeat(np.arange(0,no_periods),2*np.ones(no_periods,dtype=int))
 arr_h = np.append(arr_l[1:],[no_periods], axis=0)
 
+# Make lower Bragg periods
 make_lowZ = lambda i: lowZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
         + arr_l[i]*lowZ.mirror_width(), yb_strt) 
 make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
         + arr_l[i]*lowZ.mirror_width(), yb_strt) 
-
 [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
-#rotate_lowZ = lowZ.rotate_mirror(xb_strtr, yb_strtr)
+# Make upper Bragg periods
 make_rotate_lowZ = lambda i: lowZ.rotate_mirror(xb_strtr - arr_h[i]*highZ.mirror_width()
         - arr_l[i]*lowZ.mirror_width(), yb_strtr) 
 make_rotate_highZ = lambda i: highZ.rotate_mirror(xb_strtr - arr_h[i]*highZ.mirror_width()
         - arr_l[i]*lowZ.mirror_width(), yb_strtr) 
-
 [make_rotate_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 [make_rotate_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+
+# Make feedline sections
+cc = 50
+ratio = .5
+bond_pad = 200
+
+feed = LayoutComponents(poly_cell, x0, y0, layer=2)
+feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, y0-bond_pad, orientation='H')
+
+# Feedline
+feedline = Trench(cc, cc/2, poly_cell, layer=2)
+feedline.straight_trench(1000, sub_x-1000 - 2*cc - ratio-bond_pad, y0 - 2*bond_pad + cc, orient='H')
+
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

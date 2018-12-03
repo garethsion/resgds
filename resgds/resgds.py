@@ -123,14 +123,23 @@ class Shapes:
             d2 = [(x0 + w2 + 2*gap, y0 - w2), (x0 + w2 + gap, y0 - w2), (x0 + gap + (w2 - w1)/2 + w1, y0), (x0 + w2 +2*gap, y0)]
         return [d1, d2]
 
-    def thinning_trench_style_2(self,w1, w2, rat, x0, y0, H):
+    def thinning_trench_style_2(self,w1, w2, rat, x0, y0, H, orientation = 'H'):
         '''
         list of list of tuples
         '''
         w1 = float(w1)
         w2 = float(w2)
-        d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), (x0 + w1*(rat + .5) - w2*(rat + .5), y0 + H)]
-        d2 = [(x0 + w1*(1 + rat), y0), (x0 + w1*(1 + 2*rat), y0), (x0 + w1*(rat + .5) + w2*(rat + .5), y0 + H), (x0 + w1*(rat + .5) + w2*.5, y0 + H)]
+
+        if(orientation == 'H'):
+            d1 = [(x0, y0), (x0, y0 - w1*rat), (x0 - H, y0 - w1*(rat + .5) + w2*.5), 
+                (x0 - H, y0 - w1*(rat + .5) + w2*(rat + .5))]
+            d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
+            (x0 -H, y0 - w1*(rat + .5) - w2*(rat + .5)), (x0 - H, y0 - w1*(rat + .5) - w2*.5)]
+        elif(orientation=='V'):
+            d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), 
+                (x0 + w1*(rat + .5) - w2*(rat + .5), y0 + H)]
+            d2 = [(x0 + w1*(1 + rat), y0), (x0 + w1*(1 + 2*rat), y0), (x0 + w1*(rat + .5) 
+                + w2*(rat + .5), y0 + H), (x0 + w1*(rat + .5) + w2*.5, y0 + H)]
         return [d1, d2]
 
 class BuildRect(Shapes):
@@ -206,52 +215,81 @@ class LayoutComponents(Shapes):
             self.__cell.add(gdspy.Polygon(i, self.__layer))
         return
 
-    
-    def feedline(self,cc, rat, r, W, H, bond, d_dots):
 
+    def feedbond(self,cc,rat,bond,x0,y0,orientation='H'):
         #deltaL
-        dL = [self.rect(bond*(1 + 2*rat), bond*rat, 0, 0)]
-        dL += self.straight_trench(bond, bond*rat, bond, 0, bond*rat, orientation='V')
-        dL += self.thinning_trench_style_2(bond, cc, rat, 0, bond*(1+rat), bond)
+        l = bond
+        w = bond
+        gap = bond*rat
+    
+        w1 = bond
+        w2 = cc
+        x0t = x0-bond/2
+        y0t = y0#- bond*rat-gap
+        H = bond
 
-        #deltaR
-        dR = [self.rect(bond*(1 + 2*rat), bond*rat, cc*(1 + 2*rat) + W + 2*r, 0)]
-        dR += self.straight_trench(bond, bond*rat, bond, cc*(1 + 2*rat) + W + 2*r, bond*rat, orientation='V')
-        dR += self.thinning_trench_style_2(bond, cc, rat, cc*(1 + 2*rat) + W + 2*r, bond*(1+rat), bond)
+        #thinning_trench_style_2(self,w1, w2, rat, x0, y0, H):
 
-        #narrow - shapes start on left and move along feedline
-        narrow = self.straight_trench(H, cc*rat, cc, bond*(rat + .5) - cc*(rat + .5), bond*(2 + rat), orientation='V')
-        narrow += self.quarterarc_trench(r, cc, cc*rat, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H, orient='NW')
-        narrow += self.straight_trench(W, cc*rat, cc, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H + r, orientation='H')
-        narrow += self.quarterarc_trench(r, cc, cc*rat, r+ W + bond*(rat + .5) + cc*(rat + .5) , bond*(2 + rat) + H, orient='NE')
-        narrow += self.straight_trench(H, cc*rat, cc, bond*(rat + .5) + cc*(rat + .5) + W + 2*r, bond*(2 + rat), orientation='V')
+        feed = [self.rect(bond*rat,bond*(1 + 2*rat), x0-bond/2, y0 - bond - 2*cc)]
+        #feed += self.straight_trench(l, w, gap, x0, y0, orientation='H')
+        feed += self.thinning_trench_style_2(w1, w2, rat, x0t, y0t+bond/2, H, orientation) 
+        #feed += self.thinning_trench(w1, w2, rat, x0t, y0t, orientation='H') 
 
-        #shapes to remove antidots from
-        #dl
-        remove = [self.rect(bond*(1 + 2*rat) + 2*d_dots, bond*(rat + 1) + d_dots, -d_dots , -d_dots)]
-        remove += [[(-d_dots, bond*(rat + 1)), (bond*(1 + 2*rat) + d_dots, bond*(rat + 1)), (bond*(rat + .5) + cc*(rat + .5) + d_dots, bond*(rat + 2)), (bond*(rat + .5) - cc*(rat + .5) - d_dots, bond*(rat + 2))]]
 
-        #dr
-        remove += [self.rect(bond*(1 + 2*rat) + 2*d_dots,  bond*(rat + 1) + d_dots, cc*(1 + 2*rat) + W + 2*r -d_dots, -d_dots)]
-        remove += [[(cc*(1 + 2*rat) + W + 2*r - d_dots, bond*(rat + 1)), (d_dots + cc*(1 + 2*rat) + W + 2*r + bond*(1 + 2*rat), bond*(rat + 1)), (d_dots + cc*(1 + 2*rat) + W + 2*r + bond*(rat + .5) + cc*(rat + .5), bond*(rat + 2)), (cc*(1 + 2*rat) + W + 2*r +bond*(rat + .5) - cc*(rat + .5) - d_dots, bond*(rat + 2))]]
+        #def thinning_trench(self,w1, w2, gap, x0, y0, orientation='V'):       
 
-        #narrow quarterarc(r, w, x0, y0, orientation='NE')
-        remove += [self.rect(cc*(1 + 2*rat) + 2*d_dots, H, bond*(rat + .5) - cc*(rat + .5) - d_dots, bond*(2 + rat))]
-        remove += [self.quarterarc(r - d_dots, cc*(1 + 2*rat) + 2*d_dots, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H, orientation='NW')]
-        remove += [self.rect(W, cc*(1 + 2*rat) + 2*d_dots, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H + r - d_dots)]
-        remove += [self.quarterarc(r - d_dots, cc*(1 + 2*rat) + 2*d_dots, r+ W + bond*(rat + .5) + cc*(rat + .5) , bond*(2 + rat) + H, orientation='NE')]
-        remove += [self.rect(cc*(1 + 2*rat) + 2*d_dots, H, bond*(rat + .5) + cc*(rat + .5) + W + 2*r - d_dots, bond*(2 + rat))]
+        return feed
 
-        return [dL + dR + narrow, remove]
-
-    def make_feedline(self,cc, rat, r, W, H, bond, d_dots):
-        feedline = self.feedline(cc, rat, r, W, H, bond, d_dots)
-        feedline_remove = feedline[1]
-        feedline_remove = [self.move(i, 1000, 1000) for i in feedline_remove]
-        feedline = feedline[0]
-        feedline = [self.move(i, 1000, 1000) for i in feedline]
-        for i in feedline:
+    def make_feedbond(self,cc,rat,bond, x0, y0, orientation='H'):
+        feedbond = self.feedbond(cc,rat,bond,x0, y0, orientation)
+        for i in feedbond:
             self.__cell.add(gdspy.Polygon(i, self.__layer))
+    
+    # def feedline(self,cc, rat, r, W, H, bond, d_dots):
+
+    #     #deltaL
+    #     dL = [self.rect(bond*(1 + 2*rat), bond*rat, 0, 0)]
+    #     dL += self.straight_trench(bond, bond*rat, bond, 0, bond*rat, orientation='V')
+    #     dL += self.thinning_trench_style_2(bond, cc, rat, 0, bond*(1+rat), bond)
+
+    #     #deltaR
+    #     dR = [self.rect(bond*(1 + 2*rat), bond*rat, cc*(1 + 2*rat) + W + 2*r, 0)]
+    #     dR += self.straight_trench(bond, bond*rat, bond, cc*(1 + 2*rat) + W + 2*r, bond*rat, orientation='V')
+    #     dR += self.thinning_trench_style_2(bond, cc, rat, cc*(1 + 2*rat) + W + 2*r, bond*(1+rat), bond)
+
+    #     #narrow - shapes start on left and move along feedline
+    #     narrow = self.straight_trench(H, cc*rat, cc, bond*(rat + .5) - cc*(rat + .5), bond*(2 + rat), orientation='V')
+    #     narrow += self.quarterarc_trench(r, cc, cc*rat, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H, orient='NW')
+    #     narrow += self.straight_trench(W, cc*rat, cc, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H + r, orientation='H')
+    #     narrow += self.quarterarc_trench(r, cc, cc*rat, r+ W + bond*(rat + .5) + cc*(rat + .5) , bond*(2 + rat) + H, orient='NE')
+    #     narrow += self.straight_trench(H, cc*rat, cc, bond*(rat + .5) + cc*(rat + .5) + W + 2*r, bond*(2 + rat), orientation='V')
+
+    #     #shapes to remove antidots from
+    #     #dl
+    #     remove = [self.rect(bond*(1 + 2*rat) + 2*d_dots, bond*(rat + 1) + d_dots, -d_dots , -d_dots)]
+    #     remove += [[(-d_dots, bond*(rat + 1)), (bond*(1 + 2*rat) + d_dots, bond*(rat + 1)), (bond*(rat + .5) + cc*(rat + .5) + d_dots, bond*(rat + 2)), (bond*(rat + .5) - cc*(rat + .5) - d_dots, bond*(rat + 2))]]
+
+    #     #dr
+    #     remove += [self.rect(bond*(1 + 2*rat) + 2*d_dots,  bond*(rat + 1) + d_dots, cc*(1 + 2*rat) + W + 2*r -d_dots, -d_dots)]
+    #     remove += [[(cc*(1 + 2*rat) + W + 2*r - d_dots, bond*(rat + 1)), (d_dots + cc*(1 + 2*rat) + W + 2*r + bond*(1 + 2*rat), bond*(rat + 1)), (d_dots + cc*(1 + 2*rat) + W + 2*r + bond*(rat + .5) + cc*(rat + .5), bond*(rat + 2)), (cc*(1 + 2*rat) + W + 2*r +bond*(rat + .5) - cc*(rat + .5) - d_dots, bond*(rat + 2))]]
+
+    #     #narrow quarterarc(r, w, x0, y0, orientation='NE')
+    #     remove += [self.rect(cc*(1 + 2*rat) + 2*d_dots, H, bond*(rat + .5) - cc*(rat + .5) - d_dots, bond*(2 + rat))]
+    #     remove += [self.quarterarc(r - d_dots, cc*(1 + 2*rat) + 2*d_dots, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H, orientation='NW')]
+    #     remove += [self.rect(W, cc*(1 + 2*rat) + 2*d_dots, r+ bond*(rat + .5) + cc*(rat + .5), bond*(2 + rat) + H + r - d_dots)]
+    #     remove += [self.quarterarc(r - d_dots, cc*(1 + 2*rat) + 2*d_dots, r+ W + bond*(rat + .5) + cc*(rat + .5) , bond*(2 + rat) + H, orientation='NE')]
+    #     remove += [self.rect(cc*(1 + 2*rat) + 2*d_dots, H, bond*(rat + .5) + cc*(rat + .5) + W + 2*r - d_dots, bond*(2 + rat))]
+
+    #     return [dL + dR + narrow, remove]
+
+    # def make_feedline(self,cc, rat, r, W, H, bond, d_dots):
+    #     feedline = self.feedline(cc, rat, r, W, H, bond, d_dots)
+    #     feedline_remove = feedline[1]
+    #     feedline_remove = [self.move(i, 1000, 1000) for i in feedline_remove]
+    #     feedline = feedline[0]
+    #     feedline = [self.move(i, 1000, 1000) for i in feedline]
+    #     for i in feedline:
+    #         self.__cell.add(gdspy.Polygon(i, self.__layer))
 
     
 class Quarterwave(Shapes):

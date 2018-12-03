@@ -1,13 +1,15 @@
-#!/usr/bin/env/ python
+#!/usr/bin/env python
 
 import os
+import psutil
 import res_shapes as rs
 import gdspy
-
+import numpy as np
+from subprocess import call
 
 #setup the folder and gds 'cell'
 poly_cell = gdspy.Cell('POLYGONS')
-folder = r'testfolder'
+layout_file = 'oscar.gds'
 
 #layer 0 - rectangle showing chip size. Not to be exposed.
 chip_w = 7500
@@ -177,7 +179,10 @@ for i in fluxline1_remove:
 for i in fluxline2_remove:
     poly_cell.add(gdspy.Polygon(i, 8))
 
-#Write the pattern as a gds file
-#os.chdir(folder)
-gdspy.write_gds(folder + '/chip_test.gdsii', unit=1.0e-6, precision=1.0e-9)
-# gdspy.LayoutViewer()
+
+if("klayout" in (p.name() for p in psutil.process_iter())):
+    #Write the pattern as a gds file
+    gdspy.write_gds(layout_file, unit=1.0e-6, precision=1.0e-9)
+else:
+    gdspy.write_gds(layout_file, unit=1.0e-6, precision=1.0e-9)
+    kl = call('./klayout_viewer %s' %layout_file,shell=True)

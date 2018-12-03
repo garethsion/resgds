@@ -15,6 +15,9 @@ class Shapes:
         self.__cell = cell
         return
 
+    def move(self,shape, dx, dy):
+        return [(i[0] + dx, i[1] + dy) for i in shape]
+
     def circ_arc(self,r, x0, y0, n=50, theta0=0, thetaf=np.pi/2):
         '''
         List of tuples giving x, y coords of a circular arc from theta_0 to theta_f
@@ -234,6 +237,15 @@ class LayoutComponents(Shapes):
         remove += [self.rect(cc*(1 + 2*rat) + 2*d_dots, H, bond*(rat + .5) + cc*(rat + .5) + W + 2*r - d_dots, bond*(2 + rat))]
 
         return [dL + dR + narrow, remove]
+
+    def make_feedline(self,cc, rat, r, W, H, bond, d_dots):
+        feedline = self.feedline(cc, rat, r, W, H, bond, d_dots)
+        feedline_remove = feedline[1]
+        feedline_remove = [self.move(i, 1000, 1000) for i in feedline_remove]
+        feedline = feedline[0]
+        feedline = [self.move(i, 1000, 1000) for i in feedline]
+        for i in feedline:
+            self.__cell.add(gdspy.Polygon(i, self.__layer))
 
     
 class Quarterwave(Shapes):

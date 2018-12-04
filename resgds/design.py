@@ -124,9 +124,17 @@ feed = LayoutComponents(poly_cell, x0, y0, layer=2)
 feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, y0-bond_pad, orientation='H')
 
 # Feedline
-feedline = Trench(cc, cc/2, poly_cell, layer=2)
-feedline.straight_trench(1000, sub_x-1000 - 2*cc - ratio-bond_pad, y0 - 2*bond_pad + cc, orient='H')
+feedin_length = 600
+feedlink_length = 1000
+xf0,yf0 = [coords(sub_x, -feedin_length - 2*cc - ratio - bond_pad), 
+        coords(y0,-2*bond_pad + cc)]
 
+feedline = Trench(cc, cc/2, poly_cell, layer=2)
+feedline.straight_trench(feedin_length, xf0, yf0, orient='H')
+feedline.quarterarc_trench(rext,xf0, yf0,orient='NW',npoints=20)
+
+xf1,yf1 = [coords(xf0, - bond_pad + 2*cc), coords(yf0)]
+feedline.straight_trench(feedlink_length, xf1, yf0 - feedlink_length, orient='V')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

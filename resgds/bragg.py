@@ -20,6 +20,16 @@ class Bragg:
         self.__layer = layer
         self.__mirror = Trench(self.__width,
                 self.__gap,self.__cell,self.__layer)
+        self.__xstrt = None
+        self.__xstop = None
+        self.__ystrt = None   
+        self.__ystop = None
+        
+        self.__xstrtr = None
+        self.__xstopr = None
+        self.__ystrtr = None   
+        self.__ystopr = None
+
         return
 
     def mirror(self, x0, y0):
@@ -43,6 +53,11 @@ class Bragg:
         x4,y4 = [coords(x3,self.__radius), coords(y3)] 
         self.__mirror.straight_trench(l3,x4,y4,orient='V')
 
+        self.__xstrt = x1
+        self.__xstop = x4
+        self.__ystrt = y1
+        self.__ystop = y4 + l3
+
     def rotate_mirror(self, x0, y0):
         coords = lambda x,dx=0: x+dx
         l1, l2, l3 = self.section_lengths()
@@ -60,6 +75,11 @@ class Bragg:
 
         x4,y4 = [coords(x3,-2*self.__gap - self.__width - self.__radius), coords(y3,-l3)] 
         self.__mirror.straight_trench(l3,x4,y4,orient='V')
+
+        self.__xstrtr = x1
+        self.__xstopr = x4
+        self.__ystrtr = y1
+        self.__ystopr = y4# - l3
 
     def section_lengths(self):
         """
@@ -98,3 +118,12 @@ class Bragg:
 
     def join_mirrors(self):
         return
+
+    def get_mirror_coordinates(self):
+        coords = [(self.__xstrt, self.__ystrt),(self.__xstop, self.__ystop)]
+        return coords
+
+    def get_rotated_mirror_coordinates(self):
+        coords = [(self.__xstrtr, self.__ystrtr),(self.__xstopr, self.__ystopr)]
+        return coords
+

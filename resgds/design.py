@@ -119,22 +119,37 @@ make_rotate_highZ = lambda i: highZ.rotate_mirror(xb_strtr - arr_h[i]*highZ.mirr
 cc = 50
 ratio = .5
 bond_pad = 200
-
-feed = LayoutComponents(poly_cell, x0, y0, layer=2)
-feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, y0-bond_pad, orientation='H')
+rfeed = 100
 
 # Feedline
-feedin_length = 600
-feedlink_length = 1000
-xf0,yf0 = [coords(sub_x, -feedin_length - 2*cc - ratio - bond_pad), 
-        coords(y0,-2*bond_pad + cc)]
+feedin_length = 691.045
+feedlink_length = 885
+feedline = Trench(wc,gc,poly_cell, layer=2)
 
-feedline = Trench(cc, cc/2, poly_cell, layer=2)
-feedline.straight_trench(feedin_length, xf0, yf0, orient='H')
-feedline.quarterarc_trench(rext,xf0, yf0,orient='NW',npoints=20)
+xf0 = lowZ.get_mirror_coordinates()[1][0]
+yf0 = lowZ.get_mirror_coordinates()[1][1]
+feedline.straight_trench(feedlink_length, xf0, yf0, orient='V')
 
-xf1,yf1 = [coords(xf0, - bond_pad + 2*cc), coords(yf0)]
-feedline.straight_trench(feedlink_length, xf1, yf0 - feedlink_length, orient='V')
+xf1,yf1 = [coords(xf0,rfeed+wc+2*gc),coords(yf0,feedlink_length)]
+feedline.quarterarc_trench(rfeed,xf1, yf1,orient='NW',npoints=20)
+feedline.straight_trench(feedin_length, xf1, yf1+rfeed, orient='H')
+
+xf2, yf2 = [coords(xf1,feedin_length+bond_pad), coords(yf1)]
+
+# Feedbond
+feed = LayoutComponents(poly_cell, xf1, yf1, layer=2)
+#feedbond = feed.make_feedbond(cc, ratio, bond_pad, xf2, yf2, orientation='H')
+feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf2+bond_pad, orientation='H')
+
+# Make LHS feedline
+xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
+yf0r = lowZ.get_rotated_mirror_coordinates()[1][1]
+feedline.straight_trench(feedlink_length, xf0r, yf0r-feedlink_length, orient='V')
+
+xf1r,yf1r = [coords(xf0r,-rfeed),coords(yf0r,-feedlink_length)]
+feedline.quarterarc_trench(rfeed,xf1r, yf1r,orient='SE',npoints=20)
+feedline.straight_trench(feedin_length, xf1r-feedin_length, yf1r-rfeed-2*gc-wc, orient='H')
+
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

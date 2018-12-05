@@ -35,11 +35,13 @@ feedin_length = 691.045
 feedlink_length = 885
 feedline = Trench(gc,wc+2*gc,poly_cell, layer=2)
 
+#feed = LayoutComponents(poly_cell, 0, 0, layer=2)
+
+
 # Feedbond
-feed = LayoutComponents(poly_cell, 0, 0, layer=2)
+feed = LayoutComponents(poly_cell, 0, 0, width=wc, gap = gc, layer=2)
 feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x+bond_pad/2, bond_pad, orientation='H')
-#feedline.straight_trench(feedlink_length, sub_x-feedlink_length, bond_pad, orient='H')
-feedline.straight_trench(feedlink_length, feedbond[2][2][0]-feedlink_length, feedbond[2][2][1], orient='H')
+#feedline.straight_trench(feedlink_length, feedbond[2][2][0]-feedlink_length, feedbond[2][2][1], orient='H')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

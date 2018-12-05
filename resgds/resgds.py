@@ -131,10 +131,15 @@ class Shapes:
         w2 = float(w2)
 
         if(orientation == 'H'):
+            #d1 = [(x0, y0), (x0, y0 - w1*rat), (x0 - H, y0 - w1*(rat + .5) + w2*.5), 
+            #    (x0 - H, y0 - w1*(rat + .5) + w2*(rat + .5))]
+            #d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
+            #(x0 -H, y0 - w1*(rat + .5) - w2*(rat + .5)), (x0 - H, y0 - w1*(rat + .5) - w2*.5)]
             d1 = [(x0, y0), (x0, y0 - w1*rat), (x0 - H, y0 - w1*(rat + .5) + w2*.5), 
                 (x0 - H, y0 - w1*(rat + .5) + w2*(rat + .5))]
             d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
             (x0 -H, y0 - w1*(rat + .5) - w2*(rat + .5)), (x0 - H, y0 - w1*(rat + .5) - w2*.5)]
+
         elif(orientation=='V'):
             d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), 
                 (x0 + w1*(rat + .5) - w2*(rat + .5), y0 + H)]
@@ -193,14 +198,25 @@ class Trench(Shapes):
         return
    
 class LayoutComponents(Shapes):
-    def __init__(self,cell, x_bound, y_bound,layer=1):
+    def __init__(self,cell, x_bound, y_bound,width = 0, gap = 0, layer=1):
         self.__xbound = x_bound
         self.__ybound = y_bound
         self.__cell = cell
         self.__layer = layer
+        self.__width = width
+        self.__gap = gap
         super().__init__(self.__cell)
         return
-
+    
+    def straight_trench(self,length, x0, y0, orient='H'):
+        trench_list = super().straight_trench(length, 
+                self.__width, self.__gap, x0, y0, orient)
+        t1 = gdspy.Polygon(trench_list[0],self.__layer)
+        t2 = gdspy.Polygon(trench_list[1],self.__layer)
+        self.__cell.add(t1)
+        self.__cell.add(t2)
+        return
+    
     def antidot_array(self,x_origin, y_origin, w, s, n):
         return [[(ii*(s + w) + x_origin, jj*(s + w) + y_origin), (ii*(s + w) 
             + w + x_origin, jj*(s + w) + y_origin),(ii*(s + w) + w + x_origin, 
@@ -227,6 +243,8 @@ class LayoutComponents(Shapes):
         x0_rect = x0
         y0_rect = y0 - bond - 2*cc
         
+        self.straight_trench(1000, x0-1000-bond, y0_rect+H-(self.__width/2) - self.__gap, orientation)
+
         feed = [self.rect(w,l, x0_rect, y0_rect)]
         feed += self.thinning_trench_style_2(w1, w2, rat, x0, y0_rect+l, H, orientation) 
         

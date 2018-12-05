@@ -116,9 +116,9 @@ make_rotate_highZ = lambda i: highZ.rotate_mirror(xb_strtr - arr_h[i]*highZ.mirr
 [make_rotate_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
 # Make feedline sections
-cc = 50
+cc =2*gc
 ratio = .5
-bond_pad = 200
+bond_pad = 100
 rfeed = 100
 
 # Feedline
@@ -139,7 +139,6 @@ xf2, yf2 = [coords(xf1,feedin_length+bond_pad), coords(yf1)]
 # Feedbond
 feed = LayoutComponents(poly_cell, xf1, yf1, layer=2)
 #feedbond = feed.make_feedbond(cc, ratio, bond_pad, xf2, yf2, orientation='H')
-feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf2+bond_pad, orientation='H')
 
 # Make LHS feedline
 xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
@@ -150,6 +149,8 @@ xf1r,yf1r = [coords(xf0r,-rfeed),coords(yf0r,-feedlink_length)]
 feedline.quarterarc_trench(rfeed,xf1r, yf1r,orient='SE',npoints=20)
 feedline.straight_trench(feedin_length, xf1r-feedin_length, yf1r-rfeed-2*gc-wc, orient='H')
 
+feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf1, orientation='H')
+#feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf2+bond_pad, orientation='H')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

@@ -216,42 +216,27 @@ class LayoutComponents(Shapes):
         return
 
 
-    def feedbond(self,cc,rat,bond,x0,y0,orientation='H'):
-        #deltaL
-        l = bond
-        w = bond
-        gap = bond*rat
-    
+    def feedbond(self,cc,rat,bond,x0,y0,orientation='H'): 
         w1 = bond
         w2 = cc
-        x0t = x0-bond/2
-        y0t = y0#- bond*rat-gap
         H = bond
-
+        
         #thinning_trench_style_2(self,w1, w2, rat, x0, y0, H):
+        w = bond*rat
+        l = bond*(1 + 2*rat)
+        x0_rect = x0
+        y0_rect = y0 - bond - 2*cc
         
-        x00 = bond*rat
-        x01 = bond*(1 + 2*rat)
-        y00 = x0-bond/2
-        y01 = y0 - bond - 2*cc
+        feed = [self.rect(w,l, x0_rect, y0_rect)]
+        feed += self.thinning_trench_style_2(w1, w2, rat, x0, y0_rect+l, H, orientation) 
         
-        feed = [self.rect(x00,x01, y00, y01)]
-        #feed += self.straight_trench(l, w, gap, x0, y0, orientation='H')
-        #feed += self.thinning_trench_style_2(w1, w2, rat, x0t, y0t+bond/2, H, orientation) 
-        feed += self.thinning_trench_style_2(w1, w2, rat, x0t, y01+2*H, H, orientation) 
-
-        
-        #feed += self.thinning_trench(w1, w2, rat, x0t, y0t, orientation='H') 
-
-
-        #def thinning_trench(self,w1, w2, gap, x0, y0, orientation='V'):       
-
         return feed
 
     def make_feedbond(self,cc,rat,bond, x0, y0, orientation='H'):
         feedbond = self.feedbond(cc,rat,bond,x0, y0, orientation)
         for i in feedbond:
             self.__cell.add(gdspy.Polygon(i, self.__layer))    
+        return feedbond
 
 class Quarterwave(Shapes):
     def __init__(self):

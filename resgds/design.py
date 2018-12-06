@@ -145,7 +145,7 @@ xf1r,yf1r = [coords(xf0r,-rfeed),coords(yf0r,-feedlink_length)]
 fqtr = feedline.quarterarc_trench(rfeed,xf1r, yf1r,orient='SE',npoints=20)
 
 feed_lhs = LayoutComponents(poly_cell, bond_pad/2, fqtr[0][0][1], width=wc, gap = gc, layer=2)
-feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqtr[0][0][0]-feedin_length, fqtr[0][0][1], orientation='W')
+feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqtr[0][0][0]-feedin_length, fqtr[0][0][1]-wc-2*gc, orientation='W')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

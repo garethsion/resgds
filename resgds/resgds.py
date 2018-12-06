@@ -118,9 +118,8 @@ class Shapes:
 
         stl = strait
 
-        print(stl)
-
         if(orientation=='N'):
+            # Fix this bit. i have not yet worked it out
             d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), 
                 (x0 + w1*(rat + .5) - w2*(rat + .5), y0 + H)]
             d2 = [(x0 + w1*(1 + rat), y0), (x0 + w1*(1 + 2*rat), y0), (x0 + w1*(rat + .5) 
@@ -236,12 +235,17 @@ class LayoutComponents(Shapes):
 
         if(orientation=='N' or orientation=='S'):
             straight_orient = 'V'
-        elif(orientation=='E' or orientation=='W'):
+            xstrt = self.__xbound - H/2
+        elif(orientation=='E'):
             straight_orient = 'H'
+            xstrt = self.__xbound - H/2
+        elif(orientation=='W'):
+            straight_orient = 'H'
+            xstrt = self.__xbound
 
         straight = self.straight_trench(feedlength, x0, y0, straight_orient)
         feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
-        feed += self.thinning_trench(w1, w2, rat, self.__xbound-H/2, y0_rect+l, 
+        feed += self.thinning_trench(w1, w2, rat, xstrt, y0_rect+l, 
                 H, orientation,straight)         
         return feed
 

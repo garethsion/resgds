@@ -133,10 +133,6 @@ class Shapes:
         stl = strait
 
         if(orientation == 'H'):
-            #d1 = [(x0, y0), (x0, y0 - w1*rat), (x0 - H, y0 - w1*(rat + .5) + w2*.5), 
-            #    (x0 - H, y0 - w1*(rat + .5) + w2*(rat + .5))]
-            #d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
-            #(x0 -H, y0 - w1*(rat + .5) - w2*(rat + .5)), (x0 - H, y0 - w1*(rat + .5) - w2*.5)]
             d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
                 (stl[1][1][0], stl[1][2][1])]
             d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
@@ -179,7 +175,7 @@ class Trench(Shapes):
         t2 = gdspy.Polygon(trench_list[1],self.__layer)
         self.__cell.add(t1)
         self.__cell.add(t2)
-        return
+        return trench_list
 
     def quarterarc_trench(self, r, x0, y0, orient='NE', npoints=20):
         trench_list = super().quarterarc_trench(r, self.__width,
@@ -188,7 +184,7 @@ class Trench(Shapes):
         t2 = gdspy.Polygon(trench_list[1],self.__layer)
         self.__cell.add(t1)
         self.__cell.add(t2)
-        return
+        return trench_list
 
     def halfarc_trench(self, r, x0, y0, orient='E', npoints=40):
         trench_list = super().halfarc_trench(r, self.__width,
@@ -197,7 +193,7 @@ class Trench(Shapes):
         t2 = gdspy.Polygon(trench_list[1],self.__layer)
         self.__cell.add(t1)
         self.__cell.add(t2)
-        return
+        return trench_list
    
 class LayoutComponents(Shapes):
     def __init__(self,cell, x_bound, y_bound,width = 0, gap = 0, layer=1):
@@ -234,24 +230,26 @@ class LayoutComponents(Shapes):
         return
 
 
-    def feedbond(self,cc,rat,bond,x0,y0,orientation='H'): 
+    def feedbond(self,feedlength,cc,rat,bond,x0,y0,orientation='H'): 
         w1 = bond
         w2 = cc
         H = bond
         
         #thinning_trench_style_2(self,w1, w2, rat, x0, y0, H):
-        w = bond*rat
-        l = bond*(1 + 2*rat)
+        w = H*rat
+        l = H*(1 + 2*rat)
         x0_rect = x0
-        y0_rect = y0 - bond - 2*cc
+        y0_rect = y0 - H - 2*cc
         
-        straight = self.straight_trench(1000, x0-1000-H, y0_rect+H-(self.__width/2) - self.__gap, orientation)
+        straight = self.straight_trench(feedlength, x0-feedlength-H, y0_rect+H-
+        	(self.__width/2) - self.__gap, orientation)
         feed = [self.rect(w,l, x0_rect, y0_rect)]
-        feed += self.thinning_trench_style_2(w1, w2, rat, x0, y0_rect+l, H, orientation,straight)         
+        feed += self.thinning_trench_style_2(w1, w2, rat, x0, y0_rect+l, 
+        	H, orientation,straight)         
         return feed
 
-    def make_feedbond(self,cc,rat,bond, x0, y0, orientation='H'):
-        feedbond = self.feedbond(cc,rat,bond,x0, y0, orientation)
+    def make_feedbond(self,feedlength,cc,rat,bond, x0, y0, orientation='H'):
+        feedbond = self.feedbond(feedlength,cc,rat,bond,x0, y0, orientation)
         for i in feedbond:
             self.__cell.add(gdspy.Polygon(i, self.__layer))    
         return feedbond

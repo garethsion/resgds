@@ -131,13 +131,22 @@ yf0 = lowZ.get_mirror_coordinates()[1][1]
 feedline.straight_trench(feedlink_length, xf0, yf0, orient='V')
 
 xf1,yf1 = [coords(xf0,rfeed+wc+2*gc),coords(yf0,feedlink_length)]
-feedline.quarterarc_trench(rfeed,xf1, yf1,orient='NW',npoints=20)
-feedline.straight_trench(feedin_length, xf1, yf1+rfeed, orient='H')
+fqt = feedline.quarterarc_trench(rfeed,xf1, yf1,orient='NW',npoints=20)
 
-xf2, yf2 = [coords(xf1,feedin_length+bond_pad), coords(yf1)]
+#feedline.straight_trench(feedin_length, xf1, yf1+rfeed, orient='H')
+feed = LayoutComponents(poly_cell, fqt[0][0][0], fqt[0][0][1], width=wc, gap = gc, layer=2)
+feedbond = feed.make_feedbond(feedin_length,cc, ratio, bond_pad, fqt[0][0][0], fqt[0][0][1], orientation='H')
+
+
+#feedbond = feed.make_feedbond(feedin_length,cc, ratio, bond_pad, sub_x+bond_pad/2, bond_pad, orientation='H')
+
+
+
+
+#xf2, yf2 = [coords(xf1,feedin_length+bond_pad), coords(yf1)]
 
 # Feedbond
-feed = LayoutComponents(poly_cell, xf1, yf1, layer=2)
+#feed = LayoutComponents(poly_cell, xf1, yf1, layer=2)
 #feedbond = feed.make_feedbond(cc, ratio, bond_pad, xf2, yf2, orientation='H')
 
 # Make LHS feedline
@@ -149,7 +158,7 @@ xf1r,yf1r = [coords(xf0r,-rfeed),coords(yf0r,-feedlink_length)]
 feedline.quarterarc_trench(rfeed,xf1r, yf1r,orient='SE',npoints=20)
 feedline.straight_trench(feedin_length, xf1r-feedin_length, yf1r-rfeed-2*gc-wc, orient='H')
 
-feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf1, orientation='H')
+#feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf1, orientation='H')
 #feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf2+bond_pad, orientation='H')
 
 # Check if klayout is already running. If not, write gds and open klayout. 

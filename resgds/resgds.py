@@ -239,12 +239,11 @@ class LayoutComponents(Shapes):
         w = H*rat
         l = H*(1 + 2*rat)
         x0_rect = x0
-        y0_rect = y0 - H - 2*cc
+        y0_rect = y0 - H + cc/2
         
-        straight = self.straight_trench(feedlength, x0-feedlength-H, y0_rect+H-
-        	(self.__width/2) - self.__gap, orientation)
-        feed = [self.rect(w,l, x0_rect, y0_rect)]
-        feed += self.thinning_trench_style_2(w1, w2, rat, x0, y0_rect+l, 
+        straight = self.straight_trench(feedlength, x0, y0, orientation)
+        feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
+        feed += self.thinning_trench_style_2(w1, w2, rat, self.__xbound-H/2, y0_rect+l, 
         	H, orientation,straight)         
         return feed
 

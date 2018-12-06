@@ -134,7 +134,7 @@ xf1,yf1 = [coords(xf0,rfeed+wc+2*gc),coords(yf0,feedlink_length)]
 fqt = feedline.quarterarc_trench(rfeed,xf1, yf1,orient='NW',npoints=20)
 
 #feedline.straight_trench(feedin_length, xf1, yf1+rfeed, orient='H')
-feed = LayoutComponents(poly_cell, fqt[0][0][0], fqt[0][0][1], width=wc, gap = gc, layer=2)
+feed = LayoutComponents(poly_cell, sub_x, fqt[0][0][1], width=wc, gap = gc, layer=2)
 feedbond = feed.make_feedbond(feedin_length,cc, ratio, bond_pad, fqt[0][0][0], fqt[0][0][1], orientation='H')
 
 

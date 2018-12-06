@@ -12,10 +12,8 @@ import psutil # Use to check if klayout is running already
 layout_file = 'bragg.gds'
 
 # Parameters
-#sub_x = 9000
-#sub_y = 4500
-sub_x = 10000
-sub_y = 10000
+sub_x = 4000
+sub_y = 9000
 
 wc = 8.11 # Conductor width of cavity
 gc = 17.85 # Gap b/w conductor and substrate
@@ -30,8 +28,8 @@ ghigh = .5*(wlow + 2*glow - whigh)
 lhigh = 4051.32
 
 rext = 0 # extrude radius
-rlow = 200 # Radius of low impedance section
-rhigh = 200 # Radius of high impedance section
+rlow = 50 # Radius of low impedance section
+rhigh = 50 # Radius of high impedance section
 
 lext1 = 400 # Lengths of straigh extrude sections
 lext2 = 1200
@@ -136,7 +134,7 @@ xf1,yf1 = [coords(xf0,rfeed+wc+2*gc),coords(yf0,feedlink_length)]
 fqt = feedline.quarterarc_trench(rfeed,xf1, yf1,orient='NW',npoints=20)
 
 feed_rhs = LayoutComponents(poly_cell, sub_x, fqt[0][0][1], width=wc, gap = gc, layer=2)
-feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqt[0][0][0], fqt[0][0][1], orientation='E')
+#feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqt[0][0][0], fqt[0][0][1], orientation='E')
 
 # Make LHS feedline
 xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
@@ -147,7 +145,7 @@ xf1r,yf1r = [coords(xf0r,-rfeed),coords(yf0r,-feedlink_length)]
 fqtr = feedline.quarterarc_trench(rfeed,xf1r, yf1r,orient='SE',npoints=20)
 
 feed_lhs = LayoutComponents(poly_cell, bond_pad/2, fqtr[0][0][1], width=wc, gap = gc, layer=2)
-feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqtr[0][0][0]-feedin_length, fqtr[0][0][1]-wc-2*gc, orientation='W')
+#feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqtr[0][0][0]-feedin_length, fqtr[0][0][1]-wc-2*gc, orientation='W')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

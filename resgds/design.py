@@ -12,6 +12,8 @@ import psutil # Use to check if klayout is running already
 layout_file = 'bragg.gds'
 
 # Parameters
+#sub_x = 9000
+#sub_y = 4500
 sub_x = 10000
 sub_y = 10000
 
@@ -118,12 +120,12 @@ make_rotate_highZ = lambda i: highZ.rotate_mirror(xb_strtr - arr_h[i]*highZ.mirr
 # Make feedline sections
 cc =2*gc
 ratio = .5
-bond_pad = 100
+bond_pad = 200
 rfeed = 100
 
 # Feedline
-feedin_length = 691.045
-feedlink_length = 885
+feedin_length = 491.045
+feedlink_length = 685
 feedline = Trench(wc,gc,poly_cell, layer=2)
 
 xf0 = lowZ.get_mirror_coordinates()[1][0]

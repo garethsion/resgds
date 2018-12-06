@@ -30,6 +30,14 @@ lhigh = 4051.32
 rlow = 30 # Radius of low impedance section
 rhigh = 30
 
+ahigh = ghigh
+bhigh = ahigh + whigh
+chigh = bhigh + 2*ghigh + 2*rhigh
+dhigh = chigh + whigh
+
+dtot = ghigh + whigh + ghigh + 2*rhigh + ghigh + whigh + ghigh
+high_diameter = dhigh - ahigh
+#print(high_diameter)
 # Setup gds cell and gds object
 poly_cell = gdspy.Cell('POLYGONS')
 rs = Shapes(poly_cell)

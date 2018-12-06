@@ -37,7 +37,21 @@ class Bragg:
             Defines a quarterwave Bragg mirror section.
         """
         coords = lambda x,dx=0: x+dx
-        l1, l2, l3 = self.section_lengths()
+        
+        out_LHS = self.__gap
+        out_RHS = 2*self.__width + 3*self.__gap + 2*self.__radius 
+        
+        diameter = out_RHS - out_LHS - (self.__width/2)
+        
+        arclength = .5 * diameter * np.pi
+        arctot = 2*arclength
+        len_remain = self.__length - arctot
+
+        l1 = len_remain/6
+        l2 = 3*l1
+        l3 = 2*l1
+
+        #l1, l2, l3 = self.section_lengths()
 
         self.__mirror.straight_trench(l1, x0, y0, orient='V')
 
@@ -60,7 +74,22 @@ class Bragg:
 
     def rotate_mirror(self, x0, y0):
         coords = lambda x,dx=0: x+dx
-        l1, l2, l3 = self.section_lengths()
+        
+
+        out_LHS = self.__gap
+        out_RHS = 2*self.__width + 3*self.__gap + 2*self.__radius 
+        
+        diameter = out_RHS - out_LHS - (self.__width/2)
+        
+        arclength = .5 * diameter * np.pi
+        arctot = 2*arclength
+        len_remain = self.__length - arctot
+
+        l1 = len_remain/6
+        l2 = 3*l1
+        l3 = 2*l1
+
+        #l1, l2, l3 = self.section_lengths()
 
         self.__mirror.straight_trench(-l1, x0, y0, orient='V')
 

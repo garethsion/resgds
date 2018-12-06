@@ -130,18 +130,17 @@ class Shapes:
         w1 = float(w1)
         w2 = float(w2)
 
-        straight = strait
-        print(straight[0][2])
+        stl = strait
 
         if(orientation == 'H'):
             #d1 = [(x0, y0), (x0, y0 - w1*rat), (x0 - H, y0 - w1*(rat + .5) + w2*.5), 
             #    (x0 - H, y0 - w1*(rat + .5) + w2*(rat + .5))]
             #d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
             #(x0 -H, y0 - w1*(rat + .5) - w2*(rat + .5)), (x0 - H, y0 - w1*(rat + .5) - w2*.5)]
-            d1 = [(x0, y0), (x0, y0 - w1*rat), (x0 - H, y0 - w1*(rat + .5) + w2*.5), 
-                (x0 - H, y0 - w1*(rat + .5) + w2*(rat + .5))]
+            d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
+                (stl[1][1][0], stl[1][2][1])]
             d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
-            (x0 -H, y0 - w1*(rat + .5) - w2*(rat + .5)), (x0 - H, y0 - w1*(rat + .5) - w2*.5)]
+            (stl[0][1][0], stl[0][1][1]), (stl[0][1][0], stl[0][2][1])]
 
         elif(orientation=='V'):
             d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), 

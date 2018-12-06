@@ -133,21 +133,8 @@ feedline.straight_trench(feedlink_length, xf0, yf0, orient='V')
 xf1,yf1 = [coords(xf0,rfeed+wc+2*gc),coords(yf0,feedlink_length)]
 fqt = feedline.quarterarc_trench(rfeed,xf1, yf1,orient='NW',npoints=20)
 
-#feedline.straight_trench(feedin_length, xf1, yf1+rfeed, orient='H')
-feed = LayoutComponents(poly_cell, sub_x, fqt[0][0][1], width=wc, gap = gc, layer=2)
-feedbond = feed.make_feedbond(feedin_length,cc, ratio, bond_pad, fqt[0][0][0], fqt[0][0][1], orientation='H')
-
-
-#feedbond = feed.make_feedbond(feedin_length,cc, ratio, bond_pad, sub_x+bond_pad/2, bond_pad, orientation='H')
-
-
-
-
-#xf2, yf2 = [coords(xf1,feedin_length+bond_pad), coords(yf1)]
-
-# Feedbond
-#feed = LayoutComponents(poly_cell, xf1, yf1, layer=2)
-#feedbond = feed.make_feedbond(cc, ratio, bond_pad, xf2, yf2, orientation='H')
+feed_rhs = LayoutComponents(poly_cell, sub_x, fqt[0][0][1], width=wc, gap = gc, layer=2)
+feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqt[0][0][0], fqt[0][0][1], orientation='E')
 
 # Make LHS feedline
 xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
@@ -155,11 +142,10 @@ yf0r = lowZ.get_rotated_mirror_coordinates()[1][1]
 feedline.straight_trench(feedlink_length, xf0r, yf0r-feedlink_length, orient='V')
 
 xf1r,yf1r = [coords(xf0r,-rfeed),coords(yf0r,-feedlink_length)]
-feedline.quarterarc_trench(rfeed,xf1r, yf1r,orient='SE',npoints=20)
-feedline.straight_trench(feedin_length, xf1r-feedin_length, yf1r-rfeed-2*gc-wc, orient='H')
+fqtr = feedline.quarterarc_trench(rfeed,xf1r, yf1r,orient='SE',npoints=20)
 
-#feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf1, orientation='H')
-#feedbond = feed.make_feedbond(cc, ratio, bond_pad, sub_x, yf2+bond_pad, orientation='H')
+feed_lhs = LayoutComponents(poly_cell, bond_pad/2, fqtr[0][0][1], width=wc, gap = gc, layer=2)
+feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad, fqtr[0][0][0]-feedin_length, fqtr[0][0][1], orientation='W')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

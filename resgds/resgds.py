@@ -109,21 +109,7 @@ class Shapes:
         if orientation == 'V':
             return [self.rect(gap, l, x0, y0), self.rect(gap, l, x0 + gap + w, y0)]
 
-    def thinning_trench(self,w1, w2, gap, x0, y0, orientation='V'):
-        '''
-        list of list of tuples
-        '''
-        w1 = float(w1)
-        w2 = float(w2)
-        if w1 > w2:
-            d1 = [(x0, y0), (x0, y0 +  w1), (x0 + gap, y0 + w1), (x0 + gap + (w1 - w2)/2, y0)]
-            d2 = [(x0 + w1 + 2*gap, y0), (x0 + w1 + 2*gap, y0 +  w1), (x0 + w1 + gap, y0 + w1), (x0 + gap + (w1 - w2)/2 + w2, y0)]
-        else:
-            d1 = [(x0, y0 - w2), (x0, y0 ), (x0 + gap + (w2 - w1)/2, y0 ), (x0 + gap , y0 - w2)]
-            d2 = [(x0 + w2 + 2*gap, y0 - w2), (x0 + w2 + gap, y0 - w2), (x0 + gap + (w2 - w1)/2 + w1, y0), (x0 + w2 +2*gap, y0)]
-        return [d1, d2]
-
-    def thinning_trench_style_2(self,w1, w2, rat, x0, y0, H, orientation = 'H', strait=[0]):
+    def thinning_trench(self,w1, w2, rat, x0, y0, H, orientation = 'H', strait=[0]):
         '''
         list of list of tuples
         '''
@@ -132,17 +118,25 @@ class Shapes:
 
         stl = strait
 
-        if(orientation == 'H'):
+        print(stl)
+
+        if(orientation=='N'):
+            d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), 
+                (x0 + w1*(rat + .5) - w2*(rat + .5), y0 + H)]
+            d2 = [(x0 + w1*(1 + rat), y0), (x0 + w1*(1 + 2*rat), y0), (x0 + w1*(rat + .5) 
+                + w2*(rat + .5), y0 + H), (x0 + w1*(rat + .5) + w2*.5, y0 + H)]
+
+        elif(orientation == 'E'):
             d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
                 (stl[1][1][0], stl[1][2][1])]
             d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
             (stl[0][1][0], stl[0][1][1]), (stl[0][1][0], stl[0][2][1])]
 
-        elif(orientation=='V'):
-            d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), 
-                (x0 + w1*(rat + .5) - w2*(rat + .5), y0 + H)]
-            d2 = [(x0 + w1*(1 + rat), y0), (x0 + w1*(1 + 2*rat), y0), (x0 + w1*(rat + .5) 
-                + w2*(rat + .5), y0 + H), (x0 + w1*(rat + .5) + w2*.5, y0 + H)]
+        elif(orientation == 'W'):
+            d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[0][3][0], stl[1][0][1]), 
+                (stl[0][3][0], stl[1][3][1])]
+            d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
+            (stl[0][3][0], stl[0][0][1]), (stl[0][3][0], stl[0][3][1])]
         return [d1, d2]
 
 class BuildRect(Shapes):
@@ -227,27 +221,31 @@ class LayoutComponents(Shapes):
         dots = self.antidot_array(x_origin, y_origin, w, s, n)
         for i in dots:
             self.__cell.add(gdspy.Polygon(i, self.__layer))
-        return
+        return dots
 
 
-    def feedbond(self,feedlength,cc,rat,bond,x0,y0,orientation='H'): 
+    def feedbond(self,feedlength,cc,rat,bond,x0,y0,orientation='N'): 
         w1 = bond
         w2 = cc
         H = bond
         
-        #thinning_trench_style_2(self,w1, w2, rat, x0, y0, H):
         w = H*rat
         l = H*(1 + 2*rat)
         x0_rect = x0
         y0_rect = y0 - H + cc/2
-        
-        straight = self.straight_trench(feedlength, x0, y0, orientation)
+
+        if(orientation=='N' or orientation=='S'):
+            straight_orient = 'V'
+        elif(orientation=='E' or orientation=='W'):
+            straight_orient = 'H'
+
+        straight = self.straight_trench(feedlength, x0, y0, straight_orient)
         feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
-        feed += self.thinning_trench_style_2(w1, w2, rat, self.__xbound-H/2, y0_rect+l, 
-        	H, orientation,straight)         
+        feed += self.thinning_trench(w1, w2, rat, self.__xbound-H/2, y0_rect+l, 
+                H, orientation,straight)         
         return feed
 
-    def make_feedbond(self,feedlength,cc,rat,bond, x0, y0, orientation='H'):
+    def make_feedbond(self,feedlength,cc,rat,bond, x0, y0, orientation='N'):
         feedbond = self.feedbond(feedlength,cc,rat,bond,x0, y0, orientation)
         for i in feedbond:
             self.__cell.add(gdspy.Polygon(i, self.__layer))    

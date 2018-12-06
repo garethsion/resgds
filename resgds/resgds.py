@@ -123,12 +123,15 @@ class Shapes:
             d2 = [(x0 + w2 + 2*gap, y0 - w2), (x0 + w2 + gap, y0 - w2), (x0 + gap + (w2 - w1)/2 + w1, y0), (x0 + w2 +2*gap, y0)]
         return [d1, d2]
 
-    def thinning_trench_style_2(self,w1, w2, rat, x0, y0, H, orientation = 'H'):
+    def thinning_trench_style_2(self,w1, w2, rat, x0, y0, H, orientation = 'H', strait=[0]):
         '''
         list of list of tuples
         '''
         w1 = float(w1)
         w2 = float(w2)
+
+        straight = strait
+        print(straight[0][2])
 
         if(orientation == 'H'):
             #d1 = [(x0, y0), (x0, y0 - w1*rat), (x0 - H, y0 - w1*(rat + .5) + w2*.5), 
@@ -215,7 +218,7 @@ class LayoutComponents(Shapes):
         t2 = gdspy.Polygon(trench_list[1],self.__layer)
         self.__cell.add(t1)
         self.__cell.add(t2)
-        return
+        return trench_list
     
     def antidot_array(self,x_origin, y_origin, w, s, n):
         return [[(ii*(s + w) + x_origin, jj*(s + w) + y_origin), (ii*(s + w) 
@@ -243,11 +246,9 @@ class LayoutComponents(Shapes):
         x0_rect = x0
         y0_rect = y0 - bond - 2*cc
         
-        self.straight_trench(1000, x0-1000-bond, y0_rect+H-(self.__width/2) - self.__gap, orientation)
-
+        straight = self.straight_trench(1000, x0-1000-H, y0_rect+H-(self.__width/2) - self.__gap, orientation)
         feed = [self.rect(w,l, x0_rect, y0_rect)]
-        feed += self.thinning_trench_style_2(w1, w2, rat, x0, y0_rect+l, H, orientation) 
-        
+        feed += self.thinning_trench_style_2(w1, w2, rat, x0, y0_rect+l, H, orientation,straight)         
         return feed
 
     def make_feedbond(self,cc,rat,bond, x0, y0, orientation='H'):

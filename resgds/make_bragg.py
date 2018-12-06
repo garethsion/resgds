@@ -27,8 +27,8 @@ whigh = 50 #2
 ghigh = .5*(wlow + 2*glow - whigh)
 lhigh = 4051.32
 
-rlow = 30 # Radius of low impedance section
-rhigh = 30
+rlow = 80 # Radius of low impedance section
+rhigh = 80
 
 ahigh = ghigh
 bhigh = ahigh + whigh

@@ -110,6 +110,48 @@ class Bragg:
         self.__ystrtr = y1
         self.__ystopr = y4# - l3
 
+    def rotate_mirror2(self, x0, y0):
+        """
+            Defines a quarterwave Bragg mirror section.
+        """
+        coords = lambda x,dx=0: x+dx
+        
+        out_LHS = self.__gap
+        out_RHS = 2*self.__width + 3*self.__gap + 2*self.__radius 
+        
+        diameter = out_RHS - out_LHS - (self.__width/2)
+        
+        arclength = .5 * diameter * np.pi
+        arctot = 2*arclength
+        len_remain = self.__length - arctot
+
+        l1 = len_remain/6
+        l2 = 3*l1
+        l3 = 2*l1
+
+        #l1, l2, l3 = self.section_lengths()
+
+        self.__mirror.straight_trench(l1, x0, y0-l2+l1, orient='V')
+
+        x1,y1 = [coords(x0,self.__width+2*self.__gap+self.__radius), coords(y0,l1-l2)]
+        self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='S', npoints=40)
+
+        x2,y2 = [coords(x1,self.__radius), coords(y1)]
+        self.__mirror.straight_trench(l2,x2,y2,orient='V')
+
+        x3,y3 = [coords(x2,self.__width+2*self.__gap+self.__radius), coords(y2,l2)]
+        self.__mirror.halfarc_trench(self.__radius, x3, y3, orient='N', npoints=40)
+
+        x4,y4 = [coords(x3,self.__radius), coords(y3,-l3)] 
+        self.__mirror.straight_trench(l3,x4,y4,orient='V')
+
+        #self.__xstrt = x1
+        #self.__xstop = x4
+        #self.__ystrt = y1
+        #self.__ystop = y4 + l3
+
+
+
     def section_lengths(self):
         """
             Method to calculate the lengths of the straight sections of the Bragg mirrors

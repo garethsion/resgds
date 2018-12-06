@@ -49,11 +49,33 @@ layout = LayoutComponents(poly_cell, sub_x, sub_y,layer=1)
 layout.make_antidot_array(0,0,10,30,0)
 
 coords = lambda x,dx=0: x+dx
+xb_strt,yb_strt = [coords(700),coords(lext2,lext3)]
+
+l1 = 1000
+l2 = 5000
+l3 = 1000
+
+cavity = Trench(wc, gc, poly_cell, layer = 2)
+
+x0,y0 = [coords(xb_strt),coords(yb_strt,-l1)]
+cavity.straight_trench(l1, x0, y0, orient='V')
+
+x1,y1 = [coords(xb_strt,-rlow),coords(yb_strt,-l1)]
+cavity.halfarc_trench(rlow,x1,y1,orient='S',npoints=40)
+
+x2,y2 = [coords(xb_strt,-2*rlow-wlow-2*glow),coords(yb_strt,-l1)]
+cavity.straight_trench(l2,x2,y2,orient='V')
+
+x3,y3 = [coords(xb_strt,-rlow),coords(yb_strt,l2-l1)]
+cavity.halfarc_trench(rlow,x3,y3,orient='N',npoints=40)
+
+x4,y4 = [coords(xb_strt),coords(yb_strt,l2-l1-l3)]
+cavity.straight_trench(l3,x4,y4,orient='V')
 
 # Bragg Mirror Sections [layer 2]
 no_periods = 4
 
-xb_strt,yb_strt = [coords(700),coords(lext2,lext3)]
+#xb_strt,yb_strt = [coords(700),coords(lext2,lext3)]
 
 highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
 lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
@@ -67,6 +89,17 @@ make_lowZ = lambda i: lowZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
         + arr_l[i]*lowZ.mirror_width(), yb_strt) 
 make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
         + arr_l[i]*lowZ.mirror_width(), yb_strt) 
+[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
+[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+
+xb_strtr = xb_strt
+yb_strtr = yb_strt+2400
+
+# Make upper Bragg periods
+make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
+        + arr_l[i]*lowZ.mirror_width(), yb_strtr) 
+make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
+        + arr_l[i]*lowZ.mirror_width(), yb_strtr) 
 [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 

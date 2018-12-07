@@ -80,13 +80,15 @@ rms1 = cavity_remove.make(x0-rm_width/2 + wc/2+gc,y0,layer=3)
 
 x2,y2 = [coords(xb_strt,-2*rlow-wlow-2*glow),coords(yb_strt,-l1)]
 cavity_remove = BuildRect(poly_cell,rm_width, l2, layer = 3)
-
 rms2 = cavity_remove.make(x2-rm_width/2 + wc/2+gc,y2,layer=3)
+
 wdth = rms1[0][0] - rms2[0][0]
 wdth2 = wdth/2 + rm_width/2
 rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0, orientation='S', npoints=40,layer=3)
 rhf2 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0+l2, orientation='N', npoints=40,layer=3)
 
+cavity_remove = BuildRect(poly_cell,rm_width, l3, layer = 3)
+rms3 = cavity_remove.make(x4-rm_width/2 + wc/2+gc,y4,layer=3)
 
 #x0,y0 = [coords(xb_strt),coords(yb_strt,-l1)]
 #cavity_remove.straight(l1, x0, y0, orient='V')
@@ -144,11 +146,15 @@ feedline = Trench(wc,gc,poly_cell, layer=2)
 
 xf0 = lowZ.get_mirror_coordinates()[1][0]
 yf0 = lowZ.get_mirror_coordinates()[1][1]
-#feedline.straight_trench(feedlink_length, xf0, yf0, orient='V')
 
 xf1,yf1 = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
 fht = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
 feedline.straight_trench(-1600,fht[0][0][0],fht[0][0][1],orient='V')
+
+cavity_remove = BuildRect(poly_cell,rm_width, -1600, layer = 3)
+rms4 = cavity_remove.make(xf1+rm_width + wc/2+gc,yf1,layer=3)
+
+rhf3 = rs.make_halfarc(0, wdth-26.5, rms4[1][0] - wdth2 - 31, rms4[1][1], orientation='N', npoints=40,layer=3)
 
 # Rotated Feedline
 xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
@@ -159,6 +165,11 @@ xf1r,yf1r = [coords(xf0r,rfeed+2*gc+wc),coords(yf0r)]
 fhtr = feedline.halfarc_trench(rfeed,xf1r, yf1r,orient='S',npoints=40)
 feedline.straight_trench(1600,fhtr[0][npts-1][0],fhtr[0][0][1],orient='V')
 
+cavity_remove = BuildRect(poly_cell,rm_width, 1600, layer = 3)
+rms5 = cavity_remove.make(xf1r+rm_width + wc/2+gc,yf1r,layer=3)
+
+rhf3 = rs.make_halfarc(0, wdth-26.5, rms5[1][0] - wdth2 - 31, rms5[1][1], orientation='S', npoints=40,layer=3)
+
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file
 if("klayout" in (p.name() for p in psutil.process_iter())):
@@ -167,4 +178,3 @@ if("klayout" in (p.name() for p in psutil.process_iter())):
 else:
     gdspy.write_gds(layout_file, unit=1.0e-6, precision=1.0e-9)
     kl = call('./klayout_viewer %s' %layout_file,shell=True)
-

@@ -123,10 +123,16 @@ yf0 = lowZ.get_mirror_coordinates()[1][1]
 
 xf1,yf1 = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
 fht = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
-
 feedline.straight_trench(-fht[0][0][1],fht[0][0][0],fht[0][0][1],orient='V')
 
 # Rotated Feedline
+xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
+yf0r = lowZ.get_rotated_mirror_coordinates()[1][1]
+
+npts = 40
+xf1r,yf1r = [coords(xf0r,rfeed+2*gc+wc),coords(yf0r)]
+fhtr = feedline.halfarc_trench(rfeed,xf1r, yf1r,orient='S',npoints=40)
+feedline.straight_trench(sub_y - fhtr[0][0][1],fhtr[0][npts-1][0],fhtr[0][0][1],orient='V')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

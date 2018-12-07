@@ -145,10 +145,10 @@ class Bragg:
         x4,y4 = [coords(x3,self.__radius), coords(y3,-l3)] 
         self.__mirror.straight_trench(l3,x4,y4,orient='V')
 
-        #self.__xstrt = x1
-        #self.__xstop = x4
-        #self.__ystrt = y1
-        #self.__ystop = y4 + l3
+        self.__xstrtr = x1
+        self.__xstopr = x4
+        self.__ystrtr = y1
+        self.__ystopr = y4
 
 
 

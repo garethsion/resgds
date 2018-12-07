@@ -38,6 +38,20 @@ class Bragg:
         """
         coords = lambda x,dx=0: x+dx
         
+        rs = Shapes(self.__cell)
+
+        wc = 8.11 # Conductor width of cavity
+        gc = 17.85 # Gap b/w conductor and substrate
+        lc = 8108.45 # Length of cavity
+
+        wlow = 30.44  # Width of low impedance section
+        glow = .5*(wc + 2*gc - wlow) # Gap of low impedance section
+        llow = 4051.32 # Length of low impedance section
+
+        whigh = 2 #·
+        ghigh = .5*(wlow + 2*glow - whigh)
+        lhigh = 4051.32
+
         out_LHS = self.__gap
         out_RHS = 2*self.__width + 3*self.__gap + 2*self.__radius 
         
@@ -55,17 +69,34 @@ class Bragg:
 
         self.__mirror.straight_trench(l1, x0, y0, orient='V')
 
+        rm_width = 4*wc + 2*gc
+        remove = BuildRect(self.__cell,rm_width, l1, layer = self.__layer+1)
+        rms1 = remove.make(x0-rm_width/2 + wc/2+gc,y0,layer= self.__layer+1) 
+
         x1,y1 = [coords(x0,self.__width+2*self.__gap+self.__radius), coords(y0,l1)]
         self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='N', npoints=40)
 
         x2,y2 = [coords(x1,self.__radius), coords(y1,-l2)]
         self.__mirror.straight_trench(l2,x2,y2,orient='V')
 
+        remove = BuildRect(self.__cell,rm_width, l2, layer = self.__layer+1)
+        rms2 = remove.make(x2-rm_width/2 + wc/2+gc,y2,layer= self.__layer+1)
+
         x3,y3 = [coords(x2,self.__width+2*self.__gap+self.__radius), coords(y2)]
         self.__mirror.halfarc_trench(self.__radius, x3, y3, orient='S', npoints=40)
 
         x4,y4 = [coords(x3,self.__radius), coords(y3)] 
         self.__mirror.straight_trench(l3,x4,y4,orient='V')
+
+        remove = BuildRect(self.__cell,rm_width, l3, layer = self.__layer+1)
+        rms3 = remove.make(x4-rm_width/2 + wc/2+gc,y4,layer= self.__layer+1)
+
+        wdth = rms2[0][0] - rms1[0][0]
+        wdth2 = -1*(wdth/2 + rm_width/2)
+        rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 63, y1, orientation='S', npoints=40,layer=3)
+
+        wdth2 = -1*(wdth/2 + rm_width/2)
+        rhf1 = rs.make_halfarc(0, wdth2, rms3[1][0] + wdth2/2 - 63, y1-l2, orientation='N', npoints=40,layer=3)
 
         self.__xstrt = x1
         self.__xstop = x4
@@ -95,7 +126,7 @@ class Bragg:
 
         x1,y1 = [coords(x0,-self.__radius), coords(y0,-l1)]
         self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='S', npoints=40)
-
+ 
         x2,y2 = [coords(x1,-2*self.__gap - self.__width - self.__radius), coords(y1)]
         self.__mirror.straight_trench(l2,x2,y2,orient='V')
 

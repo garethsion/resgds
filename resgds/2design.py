@@ -84,9 +84,9 @@ cavity_remove = BuildRect(poly_cell,rm_width, l2, layer = 3)
 rms2 = cavity_remove.make(x2-rm_width/2 + wc/2+gc,y2,layer=3)
 wdth = rms1[0][0] - rms2[0][0]
 wdth2 = wdth/2 + rm_width/2
-rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0, orientation='S', npoints=40,layer=3)
+rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0, orientation='S', npoints=40,layer=3)
+rhf2 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0+l2, orientation='N', npoints=40,layer=3)
 
-rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0+l2, orientation='N', npoints=40,layer=3)
 
 #x0,y0 = [coords(xb_strt),coords(yb_strt,-l1)]
 #cavity_remove.straight(l1, x0, y0, orient='V')

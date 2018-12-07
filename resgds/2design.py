@@ -149,12 +149,21 @@ yf0 = lowZ.get_mirror_coordinates()[1][1]
 
 xf1,yf1 = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
 fht = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
-feedline.straight_trench(-1600,fht[0][0][0],fht[0][0][1],orient='V')
+fht_strait = feedline.straight_trench(-1600,fht[0][0][0],fht[0][0][1],orient='V')
 
 cavity_remove = BuildRect(poly_cell,rm_width, -1600, layer = 3)
 rms4 = cavity_remove.make(xf1+rm_width + wc/2+gc,yf1,layer=3)
 
-rhf3 = rs.make_halfarc(0, wdth-26.5, rms4[1][0] - wdth2 - 31, rms4[1][1], orientation='N', npoints=40,layer=3)
+rhf3 = rs.make_halfarc(0, wdth-26.5, rms4[1][0] - wdth2 - 31, 
+	rms4[1][1], orientation='N', npoints=40,layer=3)
+
+
+feed_rhs = LayoutComponents(poly_cell, fht_strait[0][3][0]-2*wc-4*gc, fht_strait[0][3][1], 
+	width=wc, gap = gc, layer=2)
+feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio, 
+	bond_pad, fht_strait[0][3][0], fht_strait[0][3][1], orientation='N')
+
+
 
 # Rotated Feedline
 xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]

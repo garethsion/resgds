@@ -129,11 +129,10 @@ class Shapes:
         stl = strait
 
         if(orientation=='N'):
-            # Fix this bit. i have not yet worked it out
-            d1 = [(x0, y0), (x0 + w1*rat, y0), (x0 + w1*(rat + .5) - w2*.5, y0 + H), 
-                (x0 + w1*(rat + .5) - w2*(rat + .5), y0 + H)]
-            d2 = [(x0 + w1*(1 + rat), y0), (x0 + w1*(1 + 2*rat), y0), (x0 + w1*(rat + .5) 
-                + w2*(rat + .5), y0 + H), (x0 + w1*(rat + .5) + w2*.5, y0 + H)]
+            d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
+                (stl[1][1][0], stl[1][2][1])]
+            d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
+            (stl[0][1][0], stl[0][1][1]), (stl[0][1][0], stl[0][2][1])]
 
         elif(orientation == 'E'):
             d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
@@ -249,22 +248,29 @@ class LayoutComponents(Shapes):
         w2 = cc
         H = bond
         
-        w = H*rat
-        l = H*(1 + 2*rat)
+        # w = H*rat
+        # l = H*(1 + 2*rat)
         x0_rect = x0
         y0_rect = y0 - H + cc/2
 
         if(orientation=='N' or orientation=='S'):
             straight_orient = 'V'
             xstrt = self.__xbound - H/2
+            w = H*(1 + 2*rat)
+            l = H*rat
         elif(orientation=='E'):
             straight_orient = 'H'
             xstrt = self.__xbound - H/2
+            w = H*rat
+            l = H*(1 + 2*rat)
         elif(orientation=='W'):
             straight_orient = 'H'
             xstrt = self.__xbound
+            w = H*rat
+            l = H*(1 + 2*rat)
 
-        straight = self.straight_trench(feedlength, x0, y0, straight_orient)
+        straight = self.straight_trench(feedlength, x0, y0-w, straight_orient)
+        print(straight)
         feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
         feed += self.thinning_trench(w1, w2, rat, xstrt, y0_rect+l, 
                 H, orientation,straight)         

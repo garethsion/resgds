@@ -70,7 +70,7 @@ x3,y3 = [coords(xb_strt,-rlow),coords(yb_strt,l2-l1)]
 cavity.halfarc_trench(rlow,x3,y3,orient='N',npoints=40)
 
 x4,y4 = [coords(xb_strt),coords(yb_strt,l2-l1-l3)]
-cavity.straight_trench(l3,x4,y4,orient='V')
+cavend = cavity.straight_trench(l3,x4,y4,orient='V')
 
 # Bragg Mirror Sections [layer 2]
 no_periods = 4
@@ -93,7 +93,10 @@ make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
 xb_strtr = xb_strt
-yb_strtr = yb_strt+2400
+yb_strtr = cavend[1][0][1]
+
+#lowZ.rotate_mirror2(xb_strtr + arr_h[0]*highZ.mirror_width()
+#        + arr_l[0]*lowZ.mirror_width(), yb_strtr)
 
 # Make upper Bragg periods
 make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
@@ -116,10 +119,14 @@ feedline = Trench(wc,gc,poly_cell, layer=2)
 
 xf0 = lowZ.get_mirror_coordinates()[1][0]
 yf0 = lowZ.get_mirror_coordinates()[1][1]
-feedline.straight_trench(feedlink_length, xf0, yf0, orient='V')
+#feedline.straight_trench(feedlink_length, xf0, yf0, orient='V')
 
-xf1,yf1 = [coords(xf0,rfeed+wc+2*gc),coords(yf0,feedlink_length)]
-fqt = feedline.quarterarc_trench(rfeed,xf1, yf1,orient='NW',npoints=20)
+xf1,yf1 = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
+fht = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
+
+feedline.straight_trench(-fht[0][0][1],fht[0][0][0],fht[0][0][1],orient='V')
+
+# Rotated Feedline
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

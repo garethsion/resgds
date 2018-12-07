@@ -131,9 +131,9 @@ class Bragg:
 
         #l1, l2, l3 = self.section_lengths()
 
-        self.__mirror.straight_trench(l1, x0, y0-l2+l1, orient='V')
+        self.__mirror.straight_trench(l1, x0, y0-l1, orient='V')
 
-        x1,y1 = [coords(x0,self.__width+2*self.__gap+self.__radius), coords(y0,l1-l2)]
+        x1,y1 = [coords(x0,self.__width+2*self.__gap+self.__radius), coords(y0,-l1)]
         self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='S', npoints=40)
 
         x2,y2 = [coords(x1,self.__radius), coords(y1)]

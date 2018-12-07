@@ -49,7 +49,7 @@ layout = LayoutComponents(poly_cell, sub_x, sub_y,layer=1)
 layout.make_antidot_array(0,0,10,30,0)
 
 coords = lambda x,dx=0: x+dx
-xb_strt,yb_strt = [coords(700),coords(lext2,lext3)]
+xb_strt,yb_strt = [coords(550),coords(sub_y/2)- lext2 - lext3]
 
 l1 = 1000
 l2 = 5000
@@ -71,6 +71,31 @@ cavity.halfarc_trench(rlow,x3,y3,orient='N',npoints=40)
 
 x4,y4 = [coords(xb_strt),coords(yb_strt,l2-l1-l3)]
 cavend = cavity.straight_trench(l3,x4,y4,orient='V')
+
+# Cavity Removes
+rm_width = 4*wc + 2*gc
+
+cavity_remove = BuildRect(poly_cell,rm_width, l1, layer = 3)
+rms1 = cavity_remove.make(x0-rm_width/2 + wc/2+gc,y0,layer=3)
+
+x2,y2 = [coords(xb_strt,-2*rlow-wlow-2*glow),coords(yb_strt,-l1)]
+cavity_remove = BuildRect(poly_cell,rm_width, l2, layer = 3)
+
+rms2 = cavity_remove.make(x2-rm_width/2 + wc/2+gc,y2,layer=3)
+wdth = rms1[0][0] - rms2[0][0]
+wdth2 = wdth/2 + rm_width/2
+rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0, orientation='S', npoints=40,layer=3)
+
+rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 5, y0+l2, orientation='N', npoints=40,layer=3)
+
+#x0,y0 = [coords(xb_strt),coords(yb_strt,-l1)]
+#cavity_remove.straight(l1, x0, y0, orient='V')
+
+#x1,y1 = [coords(xb_strt,-rlow),coords(yb_strt,-l1)]
+#cavity_remove.halfarc_trench(rlow,x1,y1,orient='S',npoints=40)
+
+#x2,y2 = [coords(xb_strt,-2*rlow-wlow-2*glow),coords(yb_strt,-l1)]
+#cavity_remove.straight_trench(l2,x2,y2,orient='V')
 
 # Bragg Mirror Sections [layer 2]
 no_periods = 4
@@ -123,7 +148,7 @@ yf0 = lowZ.get_mirror_coordinates()[1][1]
 
 xf1,yf1 = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
 fht = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
-feedline.straight_trench(-fht[0][0][1],fht[0][0][0],fht[0][0][1],orient='V')
+feedline.straight_trench(-1600,fht[0][0][0],fht[0][0][1],orient='V')
 
 # Rotated Feedline
 xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
@@ -132,7 +157,7 @@ yf0r = lowZ.get_rotated_mirror_coordinates()[1][1]
 npts = 40
 xf1r,yf1r = [coords(xf0r,rfeed+2*gc+wc),coords(yf0r)]
 fhtr = feedline.halfarc_trench(rfeed,xf1r, yf1r,orient='S',npoints=40)
-feedline.straight_trench(sub_y - fhtr[0][0][1],fhtr[0][npts-1][0],fhtr[0][0][1],orient='V')
+feedline.straight_trench(1600,fhtr[0][npts-1][0],fhtr[0][0][1],orient='V')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

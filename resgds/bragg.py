@@ -150,8 +150,6 @@ class Bragg:
         self.__ystrtr = y1
         self.__ystopr = y4
 
-
-
     def section_lengths(self):
         """
             Method to calculate the lengths of the straight sections of the Bragg mirrors

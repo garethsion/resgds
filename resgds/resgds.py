@@ -100,6 +100,16 @@ class Shapes:
         '''
         return [(x0, y0), (x0 + w, y0), (x0 + w, y0 + l), (x0, y0 + l)]
 
+
+    # def straight(self, l, w, gap, x0, y0, orientation):
+    #     """
+    #     Defines a straight conductor surrounded by two gap sections
+    #     """
+    #     if orientation == 'H':
+    #         return [self.rect(l, gap, x0, y0), self.rect(l, gap, x0, y0 + gap + w)]
+    #     if orientation == 'V':
+    #         return [self.rect(gap, l, x0, y0), self.rect(gap, l, x0 + gap + w, y0)]
+
     def straight_trench(self, l, w, gap, x0, y0, orientation):
         """
         Defines a straight conductor surrounded by two gap sections
@@ -138,6 +148,15 @@ class Shapes:
             (stl[0][3][0], stl[0][0][1]), (stl[0][3][0], stl[0][3][1])]
         return [d1, d2]
 
+    def make_halfarc(self, r, w, x0, y0, orientation='E', npoints=40,layer=0):
+        slist = self.halfarc(r, w,x0,y0,orientation=orientation,npoints=npoints)
+        l1 = gdspy.Polygon(slist,layer)
+        #l2 = gdspy.Polygon(slist[1],layer)
+        
+        self.__cell.add(l1)
+        #self.__cell.add(l2)
+        return slist
+
 class BuildRect(Shapes):
     def __init__(self, cell, w, l, layer=0):
         self.__cell = cell
@@ -148,9 +167,10 @@ class BuildRect(Shapes):
         return
 
     def make(self, x0, y0, layer=0):
-        rec = gdspy.Polygon(self.rect(self.__w, self.__l, x0, y0),layer)
+        rectangle = self.rect(self.__w, self.__l, x0, y0)
+        rec = gdspy.Polygon(rectangle,layer)
         self.__cell.add(rec)
-        return
+        return rectangle
     
 class Trench(Shapes):
     def __init__(self, width, gap, cell, layer=0):
@@ -182,6 +202,7 @@ class Trench(Shapes):
     def halfarc_trench(self, r, x0, y0, orient='E', npoints=40):
         trench_list = super().halfarc_trench(r, self.__width,
                 self.__gap,x0,y0,orient=orient,npoints=npoints)
+
         t1 = gdspy.Polygon(trench_list[0],self.__layer)
         t2 = gdspy.Polygon(trench_list[1],self.__layer)
         self.__cell.add(t1)

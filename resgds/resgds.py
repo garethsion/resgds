@@ -127,12 +127,15 @@ class Shapes:
         w2 = float(w2)
 
         stl = strait
+        print(strait)
+        print('\n')
+        print(stl[0][0][1])
 
         if(orientation=='N'):
-            d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
-                (stl[1][1][0], stl[1][2][1])]
-            d2 = [(x0, y0 - w1*(1 + rat)), (x0, y0 - w1*(1 + 2*rat)), 
-            (stl[0][1][0], stl[0][1][1]), (stl[0][1][0], stl[0][2][1])]
+            d1 = [(stl[0][1][0], stl[0][0][1]), (stl[0][0][0], stl[0][0][1]),
+             (x0, y0), (x0+w1*rat, y0)]
+            d2 = [(stl[1][1][0], stl[1][0][1]), (stl[1][0][0], stl[1][0][1]),
+             (x0+2*H-w1*rat, y0), (x0+2*H, y0)]
 
         elif(orientation == 'E'):
             d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
@@ -269,11 +272,15 @@ class LayoutComponents(Shapes):
             w = H*rat
             l = H*(1 + 2*rat)
 
-        straight = self.straight_trench(feedlength, x0, y0-w, straight_orient)
-        print(straight)
-        feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
-        feed += self.thinning_trench(w1, w2, rat, xstrt, y0_rect+l, 
-                H, orientation,straight)         
+        #straight = self.straight_trench(feedlength, x0, y0-w, straight_orient)
+        straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)
+        #feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
+        feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]
+        print(feed)
+        feed += self.thinning_trench(w1, w2, rat, feed[0][3][0], feed[0][3][1], 
+                H, orientation,straight)
+        #feed += self.thinning_trench(w1, w2, rat, xstrt, y0_rect+l, 
+        #        H, orientation,straight)         
         return feed
 
     def make_feedbond(self,feedlength,cc,rat,bond, x0, y0, orientation='N'):

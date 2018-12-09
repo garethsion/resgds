@@ -257,7 +257,7 @@ class LayoutComponents(Shapes):
         d = [(feed[0][0][0], y0), (feed[0][0][0]+1000, y0)]
         return d
 
-    def feedbond_remove(self,feedlength,cc,rat,bond,x0,y0,xstr,ystr,xend,orientation='N'):
+    def feedbond_remove(self,feedlength,cc,rat,bond,x0,y0,xstr,ystr,xend,orientation):
         w1 = bond
         w2 = cc
         H = bond
@@ -267,11 +267,37 @@ class LayoutComponents(Shapes):
         x0_rect = x0
         y0_rect = y0 - H+ cc/2
 
-        if(orientation=='N' or orientation=='S'):
+        print(orientation)
+
+        if(orientation=='N'):
             straight_orient = 'V'
             xstrt = self.__xbound - H/2
-            w = H*(1 + 2*rat)
-            l = H*rat
+            w = H*(1 + 2*rat) + 50
+            l = H*rat + 50
+            feed_remove = [self.rect(w,l, self.__xbound-H/2-25, y0_rect-325)]
+            x0t = feed_remove[0][2][0]
+            y0t = feed_remove[0][2][1]
+            x1t = feed_remove[0][3][0]
+            y1t = feed_remove[0][3][1]
+            x2t = xstr
+            y2t = ystr
+            x3t = xend
+            y3t = ystr
+        elif(orientation=='S'):
+            straight_orient = 'V'
+            xstrt = self.__xbound - H/2
+            w = H*(1 + 2*rat) + 50
+            l = H*rat + 50
+            feed_remove = [self.rect(w,l, self.__xbound-H/2-25, y0_rect+550)]
+
+            x0t = feed_remove[0][0][0]
+            y0t = feed_remove[0][0][1]
+            x1t = feed_remove[0][1][0]
+            y1t = feed_remove[0][1][1]
+            x2t = xend
+            y2t = ystr
+            x3t = xstr
+            y3t = ystr
         elif(orientation=='E'):
             straight_orient = 'H'
             xstrt = self.__xbound - H/2
@@ -283,15 +309,6 @@ class LayoutComponents(Shapes):
             w = H*rat
             l = H*(1 + 2*rat)
 
-        feed_remove = [self.rect(w+50,l+50, self.__xbound-H/2-25, y0_rect-325)]
-        x0t = feed_remove[0][2][0]
-        y0t = feed_remove[0][2][1]
-        x1t = feed_remove[0][3][0]
-        y1t = feed_remove[0][3][1]
-        x2t = xstr
-        y2t = ystr
-        x3t = xend
-        y3t = ystr
         feed_remove += [self.triangle(x0t,y0t,x1t,y1t,x2t,y2t,x3t,y3t)]
         return feed_remove
 
@@ -350,7 +367,7 @@ class LayoutComponents(Shapes):
         return feedbond
 
 
-    def make_feedbond_remove(self,feedlength,cc,rat,bond, x0, y0,xstr,ystr,xend, orientation='N'):
+    def make_feedbond_remove(self,feedlength,cc,rat,bond, x0, y0,xstr,ystr,xend,orientation):
         feedbond = self.feedbond_remove(feedlength,cc,rat,bond,x0, y0,xstr,ystr,xend, orientation)
         for i in feedbond:
             self.__cell.add(gdspy.Polygon(i, self.__layer+1))    

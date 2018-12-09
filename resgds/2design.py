@@ -49,7 +49,7 @@ layout = LayoutComponents(poly_cell, sub_x, sub_y,layer=1)
 layout.make_antidot_array(0,0,10,30,0)
 
 coords = lambda x,dx=0: x+dx
-xb_strt,yb_strt = [coords(550),coords(sub_y/2)- lext2 - lext3]
+xb_strt,yb_strt = [coords(550),coords(sub_y/2)- lext2 - lext3 + 100]
 
 l1 = 1000
 l2 = 5000
@@ -193,6 +193,9 @@ feed_lhs = LayoutComponents(poly_cell, fhtr_strait[0][3][0]-2*wc-4*gc, fhtr_stra
         width=wc, gap = gc, layer=2)
 feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, 
         bond_pad, fhtr_strait[0][3][0], fhtr_strait[0][3][1], orientation='S')
+
+feed_remove = feed_lhs.make_feedbond_remove(feedin_length,cc, ratio, 
+        bond_pad, fhtr_strait[0][3][0],fhtr_strait[0][3][1],xstr,ystr,xend, 'S')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

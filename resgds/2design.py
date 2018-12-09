@@ -152,14 +152,15 @@ fht = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
 fht_strait = feedline.straight_trench(-1600,fht[0][0][0],fht[0][0][1],orient='V')
 
 cavity_remove = BuildRect(poly_cell,rm_width, -1600, layer = 3)
-rms4 = cavity_remove.make(xf1+rm_width + wc/2+gc,yf1-feedin_length,layer=3)
+rms4 = cavity_remove.make(xf1+rm_width + wc/2+gc,yf1,layer=3)
+rms4_remove = cavity_remove.make(xf1+rm_width + wc/2+gc,yf1-feedin_length,layer=3)
 
 rhf3 = rs.make_halfarc(0, wdth-26.5, rms4[1][0] - wdth2 - 31, 
         rms4[1][1], orientation='N', npoints=40,layer=3)
 
-xstr = rms4[0][0]
-ystr = rms4[3][1]
-xend = rms4[2][0]
+xstr = rms4_remove[0][0]
+ystr = rms4_remove[3][1]
+xend = rms4_remove[2][0]
 
 feed_rhs = LayoutComponents(poly_cell, fht_strait[0][3][0]-2*wc-4*gc, fht_strait[0][3][1], 
         width=wc, gap = gc, layer=2)
@@ -168,7 +169,6 @@ feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio,
 feed_remove = feed_rhs.make_feedbond_remove(feedin_length,cc, ratio, 
         bond_pad, fht_strait[0][3][0],fht_strait[0][3][1],xstr,ystr,xend, orientation='N')
 
-
 # Rotated Feedline
 xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
 yf0r = lowZ.get_rotated_mirror_coordinates()[1][1]
@@ -176,12 +176,23 @@ yf0r = lowZ.get_rotated_mirror_coordinates()[1][1]
 npts = 40
 xf1r,yf1r = [coords(xf0r,rfeed+2*gc+wc),coords(yf0r)]
 fhtr = feedline.halfarc_trench(rfeed,xf1r, yf1r,orient='S',npoints=40)
-feedline.straight_trench(1600,fhtr[0][npts-1][0],fhtr[0][0][1],orient='V')
+fhtr_strait = feedline.straight_trench(1600,fhtr[0][npts-1][0],fhtr[0][0][1],orient='V')
 
 cavity_remove = BuildRect(poly_cell,rm_width, 1600, layer = 3)
 rms5 = cavity_remove.make(xf1r+rm_width + wc/2+gc,yf1r,layer=3)
 
 rhf3 = rs.make_halfarc(0, wdth-26.5, rms5[1][0] - wdth2 - 31, rms5[1][1], orientation='S', npoints=40,layer=3)
+
+rms5_remove = cavity_remove.make(xf1r+rm_width + wc/2+gc,yf1r+feedin_length,layer=3)
+xstr = rms5_remove[0][0]
+ystr = rms5_remove[3][1]
+xend = rms5_remove[2][0]
+
+
+feed_lhs = LayoutComponents(poly_cell, fhtr_strait[0][3][0]-2*wc-4*gc, fhtr_strait[0][3][1], 
+        width=wc, gap = gc, layer=2)
+feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, 
+        bond_pad, fhtr_strait[0][3][0], fhtr_strait[0][3][1], orientation='S')
 
 # Check if klayout is already running. If not, write gds and open klayout. 
 # If it is, just update the gds file

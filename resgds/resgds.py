@@ -137,6 +137,13 @@ class Shapes:
             d2 = [(stl[1][1][0], stl[1][0][1]), (stl[1][0][0], stl[1][0][1]),
              (x0+2*H-w1*rat, y0), (x0+2*H, y0)]
 
+        elif(orientation=='S'):
+            d1 = [(stl[0][1][0], stl[0][2][1]), (stl[0][0][0], stl[0][3][1]),
+             (x0, y0-H/2), (x0+w1*rat, y0-H/2)]
+            
+            d2 = [(stl[1][2][0], stl[1][2][1]), (stl[1][3][0], stl[1][3][1]),
+             (x0+2*H-w1*rat, y0-H/2), (x0+2*H, y0-H/2)]
+
         elif(orientation == 'E'):
             d1 = [(x0, y0), (x0, y0 - w1*rat), (stl[1][1][0], stl[1][1][1]), 
                 (stl[1][1][0], stl[1][2][1])]
@@ -298,27 +305,36 @@ class LayoutComponents(Shapes):
         x0_rect = x0
         y0_rect = y0 - H + cc/2
 
-        if(orientation=='N' or orientation=='S'):
+        if(orientation=='N'):
             straight_orient = 'V'
             xstrt = self.__xbound - H/2
             w = H*(1 + 2*rat)
             l = H*rat
+            straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)
+            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]        
+        elif(orientation=='S'):
+            straight_orient = 'V'
+            xstrt = self.__xbound - H/2
+            w = H*(1 + 2*rat)
+            l = H*rat
+            straight = self.straight_trench(feedlength, x0, y0, straight_orient)
+            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect+282.15+300)]
         elif(orientation=='E'):
             straight_orient = 'H'
             xstrt = self.__xbound - H/2
             w = H*rat
             l = H*(1 + 2*rat)
+            straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)
+            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]
         elif(orientation=='W'):
             straight_orient = 'H'
             xstrt = self.__xbound
             w = H*rat
             l = H*(1 + 2*rat)
-
-        #straight = self.straight_trench(feedlength, x0, y0-w, straight_orient)
-        straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)
+            straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)        
+            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]
         
         #feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
-        feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]
 
         feed += self.thinning_trench(w1, w2, rat, feed[0][3][0], feed[0][3][1], 
                 H, orientation,straight)

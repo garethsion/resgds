@@ -140,7 +140,7 @@ bond_pad = 200
 rfeed = 100
 
 # Feedline
-feedin_length = 200
+feedin_length = 100
 feedlink_length = 685
 feedline = Trench(wc,gc,poly_cell, layer=2)
 
@@ -152,17 +152,21 @@ fht = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
 fht_strait = feedline.straight_trench(-1600,fht[0][0][0],fht[0][0][1],orient='V')
 
 cavity_remove = BuildRect(poly_cell,rm_width, -1600, layer = 3)
-rms4 = cavity_remove.make(xf1+rm_width + wc/2+gc,yf1,layer=3)
+rms4 = cavity_remove.make(xf1+rm_width + wc/2+gc,yf1-feedin_length,layer=3)
 
 rhf3 = rs.make_halfarc(0, wdth-26.5, rms4[1][0] - wdth2 - 31, 
         rms4[1][1], orientation='N', npoints=40,layer=3)
 
+xstr = rms4[0][0]
+ystr = rms4[3][1]
+xend = rms4[2][0]
 
 feed_rhs = LayoutComponents(poly_cell, fht_strait[0][3][0]-2*wc-4*gc, fht_strait[0][3][1], 
         width=wc, gap = gc, layer=2)
 feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio, 
         bond_pad, fht_strait[0][3][0], fht_strait[0][3][1], orientation='N')
-
+feed_remove = feed_rhs.make_feedbond_remove(feedin_length,cc, ratio, 
+        bond_pad, fht_strait[0][3][0],fht_strait[0][3][1],xstr,ystr,xend, orientation='N')
 
 
 # Rotated Feedline

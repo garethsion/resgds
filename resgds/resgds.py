@@ -100,6 +100,9 @@ class Shapes:
         '''
         return [(x0, y0), (x0 + w, y0), (x0 + w, y0 + l), (x0, y0 + l)]
 
+    def triangle(self,x0,y0,x1,y1,x2,y2,x3,y3):
+        return[(x0,y0),(x1,y1),(x2,y2),(x3,y3)]
+
 
     # def straight(self, l, w, gap, x0, y0, orientation):
     #     """
@@ -127,9 +130,6 @@ class Shapes:
         w2 = float(w2)
 
         stl = strait
-        print(strait)
-        print('\n')
-        print(stl[0][0][1])
 
         if(orientation=='N'):
             d1 = [(stl[0][1][0], stl[0][0][1]), (stl[0][0][0], stl[0][0][1]),
@@ -246,6 +246,48 @@ class LayoutComponents(Shapes):
         return dots
 
 
+    def remove_triangle(self,feed,x0,y0):
+        d = [(feed[0][0][0], y0), (feed[0][0][0]+1000, y0)]
+        return d
+
+    def feedbond_remove(self,feedlength,cc,rat,bond,x0,y0,xstr,ystr,xend,orientation='N'):
+        w1 = bond
+        w2 = cc
+        H = bond
+        
+        # w = H*rat
+        # l = H*(1 + 2*rat)
+        x0_rect = x0
+        y0_rect = y0 - H+ cc/2
+
+        if(orientation=='N' or orientation=='S'):
+            straight_orient = 'V'
+            xstrt = self.__xbound - H/2
+            w = H*(1 + 2*rat)
+            l = H*rat
+        elif(orientation=='E'):
+            straight_orient = 'H'
+            xstrt = self.__xbound - H/2
+            w = H*rat
+            l = H*(1 + 2*rat)
+        elif(orientation=='W'):
+            straight_orient = 'H'
+            xstrt = self.__xbound
+            w = H*rat
+            l = H*(1 + 2*rat)
+
+        feed_remove = [self.rect(w+50,l+50, self.__xbound-H/2-25, y0_rect-325)]
+        x0t = feed_remove[0][2][0]
+        y0t = feed_remove[0][2][1]
+        x1t = feed_remove[0][3][0]
+        y1t = feed_remove[0][3][1]
+        x2t = xstr
+        y2t = ystr
+        x3t = xend
+        y3t = ystr
+        feed_remove += [self.triangle(x0t,y0t,x1t,y1t,x2t,y2t,x3t,y3t)]
+        return feed_remove
+
     def feedbond(self,feedlength,cc,rat,bond,x0,y0,orientation='N'): 
         w1 = bond
         w2 = cc
@@ -274,19 +316,28 @@ class LayoutComponents(Shapes):
 
         #straight = self.straight_trench(feedlength, x0, y0-w, straight_orient)
         straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)
+        
         #feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
         feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]
-        print(feed)
+
         feed += self.thinning_trench(w1, w2, rat, feed[0][3][0], feed[0][3][1], 
                 H, orientation,straight)
         #feed += self.thinning_trench(w1, w2, rat, xstrt, y0_rect+l, 
         #        H, orientation,straight)         
+        
         return feed
 
     def make_feedbond(self,feedlength,cc,rat,bond, x0, y0, orientation='N'):
         feedbond = self.feedbond(feedlength,cc,rat,bond,x0, y0, orientation)
         for i in feedbond:
             self.__cell.add(gdspy.Polygon(i, self.__layer))    
+        return feedbond
+
+
+    def make_feedbond_remove(self,feedlength,cc,rat,bond, x0, y0,xstr,ystr,xend, orientation='N'):
+        feedbond = self.feedbond_remove(feedlength,cc,rat,bond,x0, y0,xstr,ystr,xend, orientation)
+        for i in feedbond:
+            self.__cell.add(gdspy.Polygon(i, self.__layer+1))    
         return feedbond
 
 class Quarterwave(Shapes):

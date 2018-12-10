@@ -267,8 +267,6 @@ class LayoutComponents(Shapes):
         x0_rect = x0
         y0_rect = y0 - H+ cc/2
 
-        print(orientation)
-
         if(orientation=='N'):
             straight_orient = 'V'
             xstrt = self.__xbound - H/2

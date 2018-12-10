@@ -9,7 +9,7 @@ from subprocess import call # Use to call kaloput_viewer bash script
 import psutil # Use to check if klayout is running already   
 
 # Layout filename
-layout_file = 'bragg.gds'
+layout_file = 'horizontal_bragg.gds'
 
 # Parameters
 sub_x = 4000
@@ -49,10 +49,10 @@ layout = LayoutComponents(poly_cell, sub_x, sub_y,layer=1)
 layout.make_antidot_array(0,0,10,30,0)
 
 coords = lambda x,dx=0: x+dx
-xb_strt,yb_strt = [coords(550),coords(sub_y/2)- lext2 - lext3 + 100]
+xb_strt,yb_strt = [coords(450),coords(sub_y/2)- lext2 - lext3 - 100]
 
 l1 = 1000
-l2 = 5000
+l2 = 5500
 l3 = 1000
 
 cavity = Trench(wc, gc, poly_cell, layer = 2)

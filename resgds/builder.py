@@ -66,8 +66,8 @@ cavend = cavity.straight_trench(lcav3,cav_x4,cav_y4,orient='V')
 # Bragg Mirror Sections
 #
 no_periods = 5
-highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
-lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
+highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2,remove_layer=None)
+lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2, remove_layer = None)
 
 # Vectors to store shifting numbers for making mirrors
 arr_l = np.repeat(np.arange(0,no_periods),2*np.ones(no_periods,dtype=int))
@@ -75,26 +75,25 @@ arr_h = np.append(arr_l[1:],[no_periods], axis=0)
 
 # Make lower Bragg periods
 make_lowZ = lambda i: lowZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
-        + arr_l[i]*lowZ.mirror_width(), yb_strt)
+        + arr_l[i]*lowZ.mirror_width(), yb_strt, w_remove=wc, g_remove=gc)
 make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
-        + arr_l[i]*lowZ.mirror_width(), yb_strt)
+        + arr_l[i]*lowZ.mirror_width(), yb_strt, w_remove=wc, g_remove=gc)
 [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
 
 
 
-
-##xb_strtr = xb_strt
-##yb_strtr = cavend[1][0][1]
+xb_strtr = xb_strt
+yb_strtr = cavend[1][0][1]
 
 # Make upper Bragg periods
-##make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
-##        + arr_l[i]*lowZ.mirror_width(), yb_strtr)
-##make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
-##        + arr_l[i]*lowZ.mirror_width(), yb_strtr)
-##[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
-##[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
+        + arr_l[i]*lowZ.mirror_width(), yb_strtr,w_remove=wc, g_remove=gc)
+make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
+        + arr_l[i]*lowZ.mirror_width(), yb_strtr,w_remove=wc, g_remove = gc)
+[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
+[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
 # Make gds file and open up klayout
 inter = Interface()

@@ -37,20 +37,60 @@ class Bragg:
             Defines a quarterwave Bragg mirror section.
         """
         coords = lambda x,dx=0: x+dx
-        
-        rs = Shapes(self.__cell)
-
         wc = 8.11 # Conductor width of cavity
         gc = 17.85 # Gap b/w conductor and substrate
-        lc = 8108.45 # Length of cavity
+        rm_width = 4*wc + 2*gc
+        l1, l2, l3, arc = self.section_lengths(wc,gc)
+        rs = Shapes(self.__cell)
 
-        wlow = 30.44  # Width of low impedance section
-        glow = .5*(wc + 2*gc - wlow) # Gap of low impedance section
-        llow = 4051.32 # Length of low impedance section
+        # Make Bragg mirror sections
+        #
+        bragg = self.__mirror.straight_trench(l1, x0, y0, orient='V')
 
-        whigh = 2 #·
-        ghigh = .5*(wlow + 2*glow - whigh)
-        lhigh = 4051.32
+        x1,y1 = [coords(x0,self.__width+2*self.__gap+self.__radius), coords(y0,l1)]
+        bragg += self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='N', npoints=40)
+
+        x2,y2 = [coords(x1,self.__radius), coords(y1,-l2)]
+        bragg += self.__mirror.straight_trench(l2,x2,y2,orient='V')
+
+        x3,y3 = [coords(x2,self.__width+2*self.__gap+self.__radius), coords(y2)]
+        bragg += self.__mirror.halfarc_trench(self.__radius, x3, y3, orient='S', npoints=40)
+
+        x4,y4 = [coords(x3,self.__radius), coords(y3)] 
+        bragg += self.__mirror.straight_trench(l3,x4,y4,orient='V')
+
+        # Make remove sections
+        #
+        xrm0, yrm0 = [coords(x0-rm_width/2 + wc/2+gc),coords(y0)]
+        remove = BuildRect(self.__cell,rm_width, l1, layer = self.__layer+1)
+        bragg_remove = remove.make(xrm0,yrm0,layer= self.__layer+1) 
+
+        #print(rm_width)
+        xrm1, yrm1 = [coords(x2-rm_width/2 + wc/2+gc),coords(y2)]
+        remove = BuildRect(self.__cell,rm_width, l2, layer = self.__layer+1)
+        bragg_remove += remove.make(xrm1,yrm1,layer= self.__layer+1)
+
+        xrm2, yrm2 = [coords(x4-rm_width/2 + wc/2+gc),coords(y4)]
+        remove = BuildRect(self.__cell,rm_width, l3, layer = self.__layer+1)
+        bragg_remove += remove.make(xrm2,yrm2,layer= self.__layer+1)
+
+        arcrad = 2*gc+wc
+        xhf0, yhf0 = [coords(xrm0 + rm_width + arcrad),(yrm0 + l1)]
+        bragg_remove += rs.make_halfarc(arcrad, rm_width , 
+            xhf0, yhf0, orientation='N', npoints=40,layer=3)
+        
+        xhf1, yhf1 = [coords(xrm1 + rm_width + arcrad),(yhf0 - l2)]
+        bragg_remove += rs.make_halfarc(arcrad, rm_width,  
+            xhf1, yhf1, orientation='S', npoints=40,layer=3)
+###################################################################################
+        self.__xstrt = x1
+        self.__xstop = x4
+        self.__ystrt = y1
+        self.__ystop = y4 + l3
+
+        return bragg
+
+    def section_lengths(self,w,g):
 
         out_LHS = self.__gap
         out_RHS = 2*self.__width + 3*self.__gap + 2*self.__radius 
@@ -64,44 +104,7 @@ class Bragg:
         l1 = len_remain/6
         l2 = 3*l1
         l3 = 2*l1
-
-        #l1, l2, l3 = self.section_lengths()
-
-        self.__mirror.straight_trench(l1, x0, y0, orient='V')
-
-        rm_width = 4*wc + 2*gc
-        remove = BuildRect(self.__cell,rm_width, l1, layer = self.__layer+1)
-        rms1 = remove.make(x0-rm_width/2 + wc/2+gc,y0,layer= self.__layer+1) 
-
-        x1,y1 = [coords(x0,self.__width+2*self.__gap+self.__radius), coords(y0,l1)]
-        self.__mirror.halfarc_trench(self.__radius, x1, y1, orient='N', npoints=40)
-
-        x2,y2 = [coords(x1,self.__radius), coords(y1,-l2)]
-        self.__mirror.straight_trench(l2,x2,y2,orient='V')
-
-        remove = BuildRect(self.__cell,rm_width, l2, layer = self.__layer+1)
-        rms2 = remove.make(x2-rm_width/2 + wc/2+gc,y2,layer= self.__layer+1)
-
-        x3,y3 = [coords(x2,self.__width+2*self.__gap+self.__radius), coords(y2)]
-        self.__mirror.halfarc_trench(self.__radius, x3, y3, orient='S', npoints=40)
-
-        x4,y4 = [coords(x3,self.__radius), coords(y3)] 
-        self.__mirror.straight_trench(l3,x4,y4,orient='V')
-
-        remove = BuildRect(self.__cell,rm_width, l3, layer = self.__layer+1)
-        rms3 = remove.make(x4-rm_width/2 + wc/2+gc,y4,layer= self.__layer+1)
-
-        wdth = rms2[0][0] - rms1[0][0]
-        wdth2 = -1*(wdth/2 + rm_width/2)
-        rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 55.5, y1, orientation='S', npoints=40,layer=3)
-
-        wdth2 = -1*(wdth/2 + rm_width/2)
-        rhf1 = rs.make_halfarc(0, wdth2, rms3[1][0] + wdth2/2 - 55.5, y1-l2, orientation='N', npoints=40,layer=3)
-
-        self.__xstrt = x1
-        self.__xstop = x4
-        self.__ystrt = y1
-        self.__ystop = y4 + l3
+        return l1, l2, l3, arclength
 
     def rotate_mirror(self, x0, y0):
         coords = lambda x,dx=0: x+dx
@@ -211,34 +214,6 @@ class Bragg:
         self.__xstopr = x4
         self.__ystrtr = y1
         self.__ystopr = y4
-
-    def section_lengths(self):
-        """
-            Method to calculate the lengths of the straight sections of the Bragg mirrors
-        """
-        r1 = self.__radius
-        r2 = r1 + self.__gap
-        r3 = r2 + self.__width
-
-        al1,al2,al3 = [np.pi*r1, np.pi*r2, np.pi*r3]
-        arclength = al3 - al2 -al1
-        remain_length = self.__length - 2*arclength
-
-        l1,l2,l3 = [remain_length/6, remain_length/2, remain_length/3]
-        print(l1+l2+l3+2*arclength)
-        return l1, l2, l3
-
-#    def section_lengths(self):
-#        r1 = self.__radius
-#        r2 = self.__radius + self.__gap + self.__width;
-#
-#        al1,al2 = [np.pi*r1, np.pi*r2]
-#
-#        arclength = al2 -al1
-#        remain_length = self.__length - 2*arclength
-#
-#        l1,l2,l3 = [remain_length/6, remain_length/2, remain_length/3]
-#        return l1, l2, l3
 
     def mirror_width(self):
         """

@@ -81,16 +81,20 @@ make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
 [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
-xb_strtr = xb_strt
-yb_strtr = cavend[1][0][1]
+
+
+
+
+##xb_strtr = xb_strt
+##yb_strtr = cavend[1][0][1]
 
 # Make upper Bragg periods
-make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
-        + arr_l[i]*lowZ.mirror_width(), yb_strtr)
-make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
-        + arr_l[i]*lowZ.mirror_width(), yb_strtr)
-[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
-[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+##make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
+##        + arr_l[i]*lowZ.mirror_width(), yb_strtr)
+##make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
+##        + arr_l[i]*lowZ.mirror_width(), yb_strtr)
+##[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
+##[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 
 # Make gds file and open up klayout
 inter = Interface()

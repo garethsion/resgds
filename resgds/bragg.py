@@ -93,10 +93,10 @@ class Bragg:
 
         wdth = rms2[0][0] - rms1[0][0]
         wdth2 = -1*(wdth/2 + rm_width/2)
-        rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 63, y1, orientation='S', npoints=40,layer=3)
+        rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 55.5, y1, orientation='S', npoints=40,layer=3)
 
         wdth2 = -1*(wdth/2 + rm_width/2)
-        rhf1 = rs.make_halfarc(0, wdth2, rms3[1][0] + wdth2/2 - 63, y1-l2, orientation='N', npoints=40,layer=3)
+        rhf1 = rs.make_halfarc(0, wdth2, rms3[1][0] + wdth2/2 - 55.5, y1-l2, orientation='N', npoints=40,layer=3)
 
         self.__xstrt = x1
         self.__xstop = x4
@@ -202,10 +202,10 @@ class Bragg:
 
         wdth = rms2[0][0] - rms1[0][0]
         wdth2 = -1*(wdth/2 + rm_width/2)
-        rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 63, y1, orientation='N', npoints=40,layer=3)
+        rhf1 = rs.make_halfarc(0, wdth2, rms2[1][0] + wdth2/2 - 55.5, y1, orientation='N', npoints=40,layer=3)
 
         wdth2 = -1*(wdth/2 + rm_width/2)
-        rhf1 = rs.make_halfarc(0, wdth2, rms3[1][0] + wdth2/2 - 63, y1+l2, orientation='S', npoints=40,layer=3)
+        rhf1 = rs.make_halfarc(0, wdth2, rms3[1][0] + wdth2/2 - 55.5, y1+l2, orientation='S', npoints=40,layer=3)
 
         self.__xstrtr = x1
         self.__xstopr = x4

@@ -75,7 +75,7 @@ cavend = cavity.straight_trench(l3,x4,y4,orient='V')
 # Cavity Removes
 rm_width = 4*wc + 2*gc
 
-cavity_remove = BuildRect(poly_cell,rm_width, l1, layer = 3)
+cavity_remove = BuildRect(poly_cell,rm_width, lcav1, layer = 3)
 rms1 = cavity_remove.make(x0-rm_width/2 + wc/2+gc,y0,layer=3)
 
 x2,y2 = [coords(xb_strt,-2*rlow-wlow-2*glow),coords(yb_strt,-l1)]

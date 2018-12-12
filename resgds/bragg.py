@@ -20,9 +20,9 @@ class Bragg:
 
         self.__layer = layer
         if remove_layer:
-            self.__remove_layer = remove_layer
+            self.__remove_layer = self.__remove_layer
         else:
-            self.__remove_layer = 1
+            self.__remove_layer = self.__layer + 1
 
         self.__mirror = Trench(self.__width,
             self.__gap,self.__cell,self.__layer)
@@ -67,26 +67,26 @@ class Bragg:
         # Make remove sections
         #
         xrm0, yrm0 = [coords(x0-rm_width/2 + w_remove/2+g_remove),coords(y0)]
-        remove = BuildRect(self.__cell,rm_width, l1, layer = self.__layer+1)
-        bragg_remove = remove.make(xrm0,yrm0,layer= self.__layer+1) 
+        remove = BuildRect(self.__cell,rm_width, l1, layer=self.__remove_layer)
+        bragg_remove = remove.make(xrm0,yrm0,layer=self.__remove_layer) 
 
         #print(rm_width)
         xrm1, yrm1 = [coords(x2-rm_width/2 + w_remove/2+g_remove),coords(y2)]
-        remove = BuildRect(self.__cell,rm_width, l2, layer = self.__layer+1)
-        bragg_remove += remove.make(xrm1,yrm1,layer= self.__layer+1)
+        remove = BuildRect(self.__cell,rm_width, l2, layer=self.__remove_layer)
+        bragg_remove += remove.make(xrm1,yrm1,layer=self.__remove_layer)
 
         xrm2, yrm2 = [coords(x4-rm_width/2 + w_remove/2+g_remove),coords(y4)]
-        remove = BuildRect(self.__cell,rm_width, l3, layer = self.__layer+1)
-        bragg_remove += remove.make(xrm2,yrm2,layer= self.__layer+1)
+        remove = BuildRect(self.__cell,rm_width, l3, layer=self.__remove_layer)
+        bragg_remove += remove.make(xrm2,yrm2,layer=self.__remove_layer)
 
         arcrad = .5*(2*self.__radius - g_remove - w_remove)
         xhf0, yhf0 = [coords(xrm0 + rm_width + arcrad),(yrm0 + l1)]
         bragg_remove += rs.make_halfarc(arcrad, rm_width , 
-            xhf0, yhf0, orientation='N', npoints=40,layer=3)
+            xhf0, yhf0, orientation='N', npoints=40,layer=self.__remove_layer)
         
         xhf1, yhf1 = [coords(xrm1 + rm_width + arcrad),(yhf0 - l2)]
         bragg_remove += rs.make_halfarc(arcrad, rm_width,  
-            xhf1, yhf1, orientation='S', npoints=40,layer=3)
+            xhf1, yhf1, orientation='S', npoints=40,layer=self.__remove_layer)
 
         self.__xstrt = x1
         self.__xstop = x4
@@ -179,25 +179,25 @@ class Bragg:
         # Make remove sections
         #
         xrm0, yrm0 = [coords(x0-rm_width/2 + w_remove/2+g_remove),coords(y0-l1)]
-        remove = BuildRect(self.__cell,rm_width, l1, layer = self.__layer+1)
-        bragg_remove = remove.make(xrm0,yrm0,layer= self.__layer+1)
+        remove = BuildRect(self.__cell,rm_width, l1, layer=self.__remove_layer)
+        bragg_remove = remove.make(xrm0,yrm0,layer=self.__remove_layer)
 
         xrm1, yrm1 = [coords(x2-rm_width/2 + w_remove/2+g_remove),coords(y2)]
-        remove = BuildRect(self.__cell,rm_width, l2, layer = self.__layer+1)
-        bragg_remove += remove.make(xrm1,yrm1,layer= self.__layer+1)
+        remove = BuildRect(self.__cell,rm_width, l2, layer=self.__remove_layer)
+        bragg_remove += remove.make(xrm1,yrm1,layer=self.__remove_layer)
 
         xrm2, yrm2 = [coords(x4-rm_width/2 + w_remove/2+g_remove),coords(y4)]
-        remove = BuildRect(self.__cell,rm_width, l3, layer = self.__layer+1)
-        bragg_remove += remove.make(xrm2,yrm2,layer= self.__layer+1)
+        remove = BuildRect(self.__cell,rm_width, l3, layer=self.__remove_layer)
+        bragg_remove += remove.make(xrm2,yrm2,layer=self.__remove_layer)
 
         arcrad = .5*(2*self.__radius - g_remove - w_remove)
         xhf0, yhf0 = [coords(xrm0 + rm_width + arcrad),(yrm0)]
         bragg_remove += rs.make_halfarc(arcrad, rm_width ,
-            xhf0, yhf0, orientation='S', npoints=40,layer=3)
+            xhf0, yhf0, orientation='S', npoints=40,layer=self.__remove_layer)
 
         xhf1, yhf1 = [coords(xrm1 + rm_width + arcrad),(yhf0 + l2)]
         bragg_remove += rs.make_halfarc(arcrad, rm_width,
-            xhf1, yhf1, orientation='N', npoints=40,layer=3)
+            xhf1, yhf1, orientation='N', npoints=40,layer=self.__remove_layer)
 
         self.__xstrtr = x1
         self.__xstopr = x4

@@ -75,7 +75,8 @@ cavity_remove = BuildRect(poly_cell,rm_width, lcav1, layer = 3)
 straight_remove_L = cavity_remove.make(cav_x0r,cav_y0r,layer=3)
 
 # Centre cavity straight remove
-cav_x1r, cav_y1r = [coords(cav_x0,-2*rlow-wlow-2*glow),coords(yb_strt,-lcav1)]
+#cav_x1r, cav_y1r = [coords(cav_x0,-2*rlow-wlow-2*glow-rm_width/2),coords(yb_strt,-lcav1)]
+cav_x1r, cav_y1r = [coords(cav_x2,-rm_width/2 + gc + wc/2),coords(yb_strt,-lcav1)]
 cavity_remove = BuildRect(poly_cell,rm_width, lcav2, layer = 3)
 straight_remove_C = cavity_remove.make(cav_x1r,cav_y1r,layer=3)
 
@@ -85,13 +86,14 @@ cavity_remove = BuildRect(poly_cell,rm_width, lcav3, layer = 3)
 straight_remove_U = cavity_remove.make(cav_x2r,cav_y2r,layer=3)
 
 # Lower cavity halfarc remove
-cav_xhfrL, cav_yhfrL = [coords(cav_x0r - rm_width + arcrad/2),coords(cav_y1)]
-cav_harc_remove = rs.make_halfarc(arcrad, rm_width,
+rad = (cav_x0r - (cav_x1r + rm_width))/2
+cav_xhfrL, cav_yhfrL = [coords(cav_x0r, - rad),coords(cav_y1)]
+cav_harc_remove = rs.make_halfarc(rad, rm_width,
 	cav_xhfrL, cav_yhfrL, orientation='S', npoints=40, layer=3) 
 
 # Upper cavity halfarc remove
-cav_xhfrU, cav_yhfrU = [coords(cav_x0r - rm_width + arcrad/2),coords(cav_y1,lcav2)]
-cav_harc_remove = rs.make_halfarc(arcrad, rm_width,
+cav_xhfrU, cav_yhfrU = [coords(cav_x0r, - rad),coords(cav_y1,lcav2)]
+cav_harc_remove = rs.make_halfarc(rad, rm_width,
 	cav_xhfrU, cav_yhfrU, orientation='N', npoints=40, layer=3) 
 
 # Bragg Mirror Sections [layer 2]

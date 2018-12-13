@@ -70,7 +70,6 @@ class Bragg:
         remove = BuildRect(self.__cell,rm_width, l1, layer=self.__remove_layer)
         bragg_remove = remove.make(xrm0,yrm0,layer=self.__remove_layer) 
 
-        #print(rm_width)
         xrm1, yrm1 = [coords(x2-rm_width/2 + w_remove/2+g_remove),coords(y2)]
         remove = BuildRect(self.__cell,rm_width, l2, layer=self.__remove_layer)
         bragg_remove += remove.make(xrm1,yrm1,layer=self.__remove_layer)
@@ -190,14 +189,14 @@ class Bragg:
         remove = BuildRect(self.__cell,rm_width, l3, layer=self.__remove_layer)
         bragg_remove += remove.make(xrm2,yrm2,layer=self.__remove_layer)
 
-        arcrad = .5*(2*self.__radius - g_remove - w_remove)
-        xhf0, yhf0 = [coords(xrm0 + rm_width + arcrad),(yrm0)]
-        bragg_remove += rs.make_halfarc(arcrad, rm_width ,
-            xhf0, yhf0, orientation='S', npoints=40,layer=self.__remove_layer)
+        rad = (xrm0 - (xrm1 + rm_width))/2
+        xhf0, yhf0 = [coords(xrm0, - rad),coords(yrm0)]
+        bragg_remove += rs.make_halfarc(rad, rm_width ,
+            xhf0, yhf0, orientation='N', npoints=40,layer=self.__remove_layer)
 
-        xhf1, yhf1 = [coords(xrm1 + rm_width + arcrad),(yhf0 + l2)]
-        bragg_remove += rs.make_halfarc(arcrad, rm_width,
-            xhf1, yhf1, orientation='N', npoints=40,layer=self.__remove_layer)
+        xhf1, yhf1 = [coords(xrm1,-rad),coords(yhf0, l2)]
+        bragg_remove += rs.make_halfarc(rad, rm_width,
+            xhf1, yhf1, orientation='S', npoints=40,layer=self.__remove_layer)
 
         self.__xstrtr = x1
         self.__xstopr = x4

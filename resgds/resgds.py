@@ -122,7 +122,20 @@ class Shapes:
         if orientation == 'V':
             return [self.rect(gap, l, x0, y0), self.rect(gap, l, x0 + gap + w, y0)]
 
-    def thinning_trench(self,w1, w2, rat, x0, y0, H, orientation = 'H', strait=[0]):
+    def taper(self,w1,g1,w2,g2,x0,y0,x1,y1):
+        '''
+        list of list of tuples
+        '''
+        x_d2 = x0 + 2*g1 + w1
+        rat = .5
+        H =100
+        d1 = [(x0,y0), (x0+g1,y0), (x0+g2,y1), (x0,y1), (x1,y1), (x1+g1,y1)]
+        d2 = [(x_d2,y0), (x_d2-g1,y0), (x_d2-g2,y1), (x_d2,y1),
+        (x_d2-g2,y1), (x_d2-g2+g1,y1)]
+        
+        return [d1, d2]
+
+    def thinning_trench(self,w1, w2, rat, x0, y0, H, orientation = 'N', strait=[0]):
         '''
         list of list of tuples
         '''
@@ -193,6 +206,22 @@ class Trench(Shapes):
     def straight_trench(self,length, x0, y0, orient='H'):
         trench_list = super().straight_trench(length, 
                 self.__width, self.__gap, x0, y0, orient)
+        t1 = gdspy.Polygon(trench_list[0],self.__layer)
+        t2 = gdspy.Polygon(trench_list[1],self.__layer)
+        self.__cell.add(t1)
+        self.__cell.add(t2)
+        return trench_list
+
+    def thinning_trench(self,w1, w2, rat, x0, y0, H, orientation='N', strait=[0]):
+        trench_list = super().thinning_trench(w1, w2, rat, x0, y0, H, orientation, strait)
+        t1 = gdspy.Polygon(trench_list[0],self.__layer)
+        t2 = gdspy.Polygon(trench_list[1],self.__layer)
+        self.__cell.add(t1)
+        self.__cell.add(t2)
+        return trench_list
+
+    def taper(self,w1,g1,w2,g2,x0,y0,x1,y1):
+        trench_list = super().taper(w1,g1,w2,g2,x0,y0,x1,y1)
         t1 = gdspy.Polygon(trench_list[0],self.__layer)
         t2 = gdspy.Polygon(trench_list[1],self.__layer)
         self.__cell.add(t1)

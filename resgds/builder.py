@@ -184,6 +184,10 @@ feed_xhfrL, feed_yhfrL = [coords(x1_fdRem_L - rad_feed),coords(yf1)]
 feed_harc_remove = rs.make_halfarc(rad_feed, rm_width,
 	feed_xhfrL, feed_yhfrL, orientation='N', npoints=40, layer=3) 
 
+feed_remove = feed_rhs.make_feedbond_remove(feedin_length,cc, ratio, 
+        bond_pad, x1_fdRem_L,feed_yhfrL-feed_st_length,x1_fdRem_L,
+        feed_yhfrL-feed_st_length,x1_fdRem_L+rm_width, orientation='N')
+
 # Upper feed removes
 x1_fdRem_U, y1_fdRem_U = [coords(xf2U,-rm_width/2 + wc/2 + gc),coords(yf0U)]
 feed_remove_U = BuildRect(poly_cell,rm_width, feed_st_length + feedin_length, layer = 3)
@@ -192,6 +196,10 @@ fs_remove_U = feed_remove_U.make(x1_fdRem_U,y1_fdRem_U,layer=3)
 feed_xhfrU, feed_yhfrU = [coords(x1_fdRem_L - rad_feed),coords(yf1U)]
 feed_harc_remove = rs.make_halfarc(rad_feed, rm_width,
 	feed_xhfrU, feed_yhfrU, orientation='S', npoints=40, layer=3) 
+
+feed_remove = feed_rhs.make_feedbond_remove(feedin_length,cc, ratio, 
+        bond_pad, x1_fdRem_U,feed_yhfrU+feed_st_length,x1_fdRem_L,
+        feed_yhfrU+feed_st_length,x1_fdRem_U+rm_width, orientation='S')
 
 # Make gds file and open up klayout
 inter = Interface()

@@ -147,10 +147,9 @@ feed_harctrL = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
 xf2,yf2 = [coords(xf1,rfeed),coords(yf1)]
 fht_strait = feedline.straight_trench(-feed_st_length,xf2,yf2,orient='V')
 
-
 # Lower feedbond
-feed_rhs = LayoutComponents(poly_cell, fht_strait[0][3][0]-2*wc-4*gc, 
-	fht_strait[0][3][1], width=wc, gap = gc, layer=2)
+xf3,yf3 = [coords(xf2,-2*wc-4*gc),coords(yf2 - feed_st_length)]
+feed_rhs = LayoutComponents(poly_cell, xf3, yf3, width=wc, gap = gc, layer=2)
 feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio, 
         bond_pad, fht_strait[0][3][0], fht_strait[0][3][1], orientation='N')
 

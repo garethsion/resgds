@@ -25,7 +25,7 @@ lext1, lext2 = [400, 1200] # Extrude lengths
 lext3 = llow - lext1 - lext2 - 500*np.pi - 150*np.pi
 
 # Start making resonator geometry
-#__________________________________________________________
+############################################################################
 
 # Setup gds cell and gds object
 poly_cell = gdspy.Cell('POLYGONS')
@@ -41,7 +41,7 @@ layout.make_antidot_array(0,0,10,30,0)
 
 # Cavity [layer 2]
 # I assign coordinates first, and then build geometries accordingly
-#
+############################################################################
 coords = lambda x,dx=0: x+dx
 xb_strt,yb_strt = [coords(400),coords(sub_y/2)- lext2 - lext3 - 100]
 lcav1, lcav2, lcav3 = [1000, 5500, 1000]
@@ -64,7 +64,8 @@ cav_x4,cav_y4 = [coords(xb_strt),coords(yb_strt,lcav2-lcav1-lcav3)]
 cavend = cavity.straight_trench(lcav3,cav_x4,cav_y4,orient='V')
 
 # Cavity removes [layer 3]
-#
+############################################################################
+
 # Cavity Removes
 rm_width = 4*wc + 2*gc
 arcrad = .5*(2*rlow - gc - wc)
@@ -97,7 +98,7 @@ cav_harc_remove = rs.make_halfarc(rad, rm_width,
 	cav_xhfrU, cav_yhfrU, orientation='N', npoints=40, layer=3) 
 
 # Bragg Mirror Sections [layer 2]
-#
+###########################################################################
 no_periods = 5
 highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
 lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
@@ -113,8 +114,8 @@ make_lowZ = lambda i: lowZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
 make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
         + arr_l[i]*lowZ.mirror_width(), yb_strt, w_remove=wc, g_remove=gc)
 
-[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
-[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 
 # Make upper Bragg periods
 xb_strtr = xb_strt
@@ -126,19 +127,20 @@ make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width
 make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
         + arr_l[i]*lowZ.mirror_width(), yb_strtr,w_remove=wc, g_remove = gc)
 
-[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 1]
-[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+[make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 0]
+[make_highZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 
 # Feedline sections [layer 2]
-#
+############################################################################
+
 #Lower feedline
 feedline = Trench(wc,gc,poly_cell, layer=2)
 
 cc, ratio, bond_pad, rfeed = [2*gc, .5, 200, 100]
 feedin_length, feedlink_length, feed_st_length = [100,685,1600]
 
-xf0 = lowZ.get_mirror_coordinates()[1][0]
-yf0 = lowZ.get_mirror_coordinates()[1][1]
+xf0 = highZ.get_mirror_coordinates()[1][0]
+yf0 = highZ.get_mirror_coordinates()[1][1]
 
 xf1,yf1 = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
 feed_harctrL = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
@@ -154,8 +156,8 @@ feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio,
         bond_pad, fht_strait[0][3][0], fht_strait[0][3][1], orientation='N')
 
 # Upper feedline
-xf0U = lowZ.get_rotated_mirror_coordinates()[1][0]
-yf0U = lowZ.get_rotated_mirror_coordinates()[1][1]
+xf0U = highZ.get_rotated_mirror_coordinates()[1][0]
+yf0U = highZ.get_rotated_mirror_coordinates()[1][1]
 
 xf1U,yf1U = [coords(xf0U,rfeed+2*gc+wc),coords(yf0U)]
 feed_harctrU = feedline.halfarc_trench(rfeed,xf1U, yf1U,orient='S',npoints=40)
@@ -171,7 +173,7 @@ feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad,
 	xf2U, yf3U, orientation='S')
 
 # Feedline removes [layer 3]
-#
+############################################################################
 
 # Lower feed removes
 x1_fdRem_L, y1_fdRem_L = [coords(xf2,-rm_width/2 + wc/2 + gc),coords(yf0)]
@@ -201,6 +203,7 @@ feed_remove = feed_rhs.make_feedbond_remove(feedin_length,cc, ratio,
         bond_pad, x1_fdRem_U,feed_yhfrU+feed_st_length,x1_fdRem_L,
         feed_yhfrU+feed_st_length,x1_fdRem_U+rm_width, orientation='S')
 
+###########################################################################
 # Make gds file and open up klayout
 inter = Interface()
 inter.klayout(layout_file)

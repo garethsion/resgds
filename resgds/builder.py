@@ -132,17 +132,21 @@ make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_wid
 # Feedline sections [layer 2]
 #
 #Lower feedline
+feedline = Trench(wc,gc,poly_cell, layer=2)
+
 cc, ratio, bond_pad, rfeed = [2*gc, .5, 200, 100]
-feedin_length, feedlink_length, feed_straight = [100,685,1600]
+feedin_length, feedlink_length, feed_st_length = [100,685,1600]
+
 xf0 = lowZ.get_mirror_coordinates()[1][0]
 yf0 = lowZ.get_mirror_coordinates()[1][1]
 
-feedline = Trench(wc,gc,poly_cell, layer=2)
-
 xf1,yf1 = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
 feed_harctrL = feedline.halfarc_trench(rfeed,xf1, yf1,orient='N',npoints=40)
-fht_strait = feedline.straight_trench(-feed_straight,feed_harctrL[0][0][0],
-	feed_harctrL[0][0][1],orient='V')
+
+
+xf2,yf2 = [coords(xf1,rfeed),coords(yf1)]
+fht_strait = feedline.straight_trench(-feed_st_length,xf2,yf2,orient='V')
+
 
 # Lower feedbond
 feed_rhs = LayoutComponents(poly_cell, fht_strait[0][3][0]-2*wc-4*gc, 
@@ -151,21 +155,32 @@ feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio,
         bond_pad, fht_strait[0][3][0], fht_strait[0][3][1], orientation='N')
 
 # Upper feedline
-xf0r = lowZ.get_rotated_mirror_coordinates()[1][0]
-yf0r = lowZ.get_rotated_mirror_coordinates()[1][1]
+xf0U = lowZ.get_rotated_mirror_coordinates()[1][0]
+yf0U = lowZ.get_rotated_mirror_coordinates()[1][1]
 
-xf1r,yf1r = [coords(xf0r,rfeed+2*gc+wc),coords(yf0r)]
-feed_harctrU = feedline.halfarc_trench(rfeed,xf1r, yf1r,orient='S',npoints=40)
+xf1U,yf1U = [coords(xf0U,rfeed+2*gc+wc),coords(yf0U)]
+feed_harctrU = feedline.halfarc_trench(rfeed,xf1U, yf1U,orient='S',npoints=40)
+
 npts = int(np.shape(feed_harctrU)[1]/2)
-fhtr_strait = feedline.straight_trench(1600,feed_harctrU[0][npts-1][0],
-	feed_harctrU[0][0][1],orient='V')
+xf2U,yf2U = [coords(feed_harctrU[0][npts-1][0]),coords(yf0U)]
+fhtU_strait = feedline.straight_trench(feed_st_length,xf2U,yf2U,orient='V')
 
 # Upper feedbond
-feed_lhs = LayoutComponents(poly_cell, fhtr_strait[0][3][0]-2*wc-4*gc, 
-	fhtr_strait[0][3][1], width=wc, gap = gc, layer=2)
+xf3U,yf3U = [coords(xf2U,-2*wc-4*gc),coords(yf2U+feed_st_length)]
+feed_lhs = LayoutComponents(poly_cell, xf3U,yf3U, width=wc, gap = gc, layer=2)
 feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad, 
-	fhtr_strait[0][3][0], fhtr_strait[0][3][1], orientation='S')
+	xf2U, yf3U, orientation='S')
 
+
+# Feedline removes [layer 3]
+#
+"""xstr = fht_strait_[0][0]
+ystr = rms5_remove[3][1]
+xend = rms5_remove[2][0]
+
+feed_remove = feed_lhs.make_feedbond_remove(feedin_length,cc, ratio, 
+        bond_pad, fhtr_strait[0][3][0],fhtr_strait[0][3][1],xstr,ystr,xend, 'S')
+"""
 # Make gds file and open up klayout
 inter = Interface()
 inter.klayout(layout_file)

@@ -9,7 +9,7 @@ import numpy as np
 #import psutil # Use to check if klayout is running already
 
 # Layout filename
-layout_file = 'builder.gds'
+layout_file ='design.gds'
 
 # Parameters
 #__________________________________________________________

@@ -126,12 +126,9 @@ class Shapes:
         '''
         list of list of tuples
         '''
-        x_d2 = x0 + 2*g1 + w1
-        rat = .5
-        H =100
-        d1 = [(x0,y0), (x0+g1,y0), (x0+g2,y1), (x0,y1), (x1,y1), (x1+g1,y1)]
-        d2 = [(x_d2,y0), (x_d2-g1,y0), (x_d2-g2,y1), (x_d2,y1),
-        (x_d2-g2,y1), (x_d2-g2+g1,y1)]
+        
+        d1 = [(x0, y0), (x0 + g1, y0),(x0+g2,y1),(x0, y1)]
+        d2 = [(x0 + w1 + g1, y0), (x0 + w1 + 2*g1, y0), (x0 + w2 + 2*g2, y1),(x0 + w2 + g2, y1)]
         
         return [d1, d2]
 
@@ -349,34 +346,34 @@ class LayoutComponents(Shapes):
         x0_rect = x0
         y0_rect = y0 - H + cc/2
 
+        xstrt = self.__xbound - H/2
+        xoff = self.__xbound - x0
+        xoff = abs(xoff)
+
         if(orientation=='N'):
             straight_orient = 'V'
-            xstrt = self.__xbound - H/2
             w = H*(1 + 2*rat)
             l = H*rat
-            straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)
-            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]        
+            straight = self.straight_trench(feedlength, x0 , y0-feedlength, straight_orient)
+            feed = [self.rect(w,l, xstrt-xoff, y0_rect-300)]        
         elif(orientation=='S'):
             straight_orient = 'V'
-            xstrt = self.__xbound - H/2
             w = H*(1 + 2*rat)
             l = H*rat
             straight = self.straight_trench(feedlength, x0, y0, straight_orient)
-            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect+282.15+300)]
+            feed = [self.rect(w,l, xstrt-xoff, y0_rect+282.15+300)]
         elif(orientation=='E'):
             straight_orient = 'H'
-            xstrt = self.__xbound - H/2
             w = H*rat
             l = H*(1 + 2*rat)
             straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)
-            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]
+            feed = [self.rect(w,l, xstrt-xoff, y0_rect-300)]
         elif(orientation=='W'):
             straight_orient = 'H'
-            xstrt = self.__xbound
             w = H*rat
             l = H*(1 + 2*rat)
             straight = self.straight_trench(feedlength, x0, y0-feedlength, straight_orient)        
-            feed = [self.rect(w,l, self.__xbound-H/2, y0_rect-300)]
+            feed = [self.rect(w,l, xstrt-xoff, y0_rect-300)]
         
         #feed = [self.rect(w,l, self.__xbound-H/2, y0_rect)]
 

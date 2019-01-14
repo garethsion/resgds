@@ -57,7 +57,7 @@ cav_xtaper, cav_ytaper = [coords(xb_strt),coords(yb_strt,-taper_length)]
 # cavity.thinning_trench(w1, w2, rat, cav_xtaper, cav_ytaper, 
 #         taper_length, orientation='N',strait=strait)
 
-cavity.taper(wc, gc, whigh, ghigh, cav_x0, 
+cavity.taper(wc, gc, wlow, glow, cav_x0, 
         cav_y0+lcav1-taper_length, cav_x0, cav_y0+lcav1)
 
 cav_x1,cav_y1 = [coords(xb_strt,-rlow),coords(yb_strt,-lcav1)]
@@ -69,8 +69,11 @@ cavity.straight_trench(lcav2,cav_x2,cav_y2,orient='V')
 cav_x3,cav_y3 = [coords(xb_strt,-rlow),coords(yb_strt,lcav2-lcav1)]
 cavity.halfarc_trench(rlow,cav_x3,cav_y3,orient='N',npoints=40)
 
-cav_x4,cav_y4 = [coords(xb_strt),coords(yb_strt,lcav2-lcav1-lcav3)]
-cavend = cavity.straight_trench(lcav3,cav_x4,cav_y4,orient='V')
+cav_x4,cav_y4 = [coords(xb_strt),coords(yb_strt,lcav2-lcav1-lcav3+taper_length)]
+cavend = cavity.straight_trench(lcav3-taper_length,cav_x4,cav_y4,orient='V')
+
+cavity.taper(wlow, glow, wc, gc, cav_x4, 
+       cav_y4-taper_length, cav_x4, cav_y4)
 
 # Cavity removes [layer 3]
 ############################################################################
@@ -93,7 +96,7 @@ straight_remove_C = cavity_remove.make(cav_x1r,cav_y1r,layer=3)
 # Upper cavity straight remove
 cav_x2r, cav_y2r = [coords(cav_x4,-rm_width/2 + wc/2+gc),coords(cav_y4)]
 cavity_remove = BuildRect(poly_cell,rm_width, lcav3, layer = 3)
-straight_remove_U = cavity_remove.make(cav_x2r,cav_y2r,layer=3)
+straight_remove_U = cavity_remove.make(cav_x2r,cav_y2r-taper_length,layer=3)
 
 # Lower cavity halfarc remove
 rad = (cav_x0r - (cav_x1r + rm_width))/2
@@ -128,7 +131,7 @@ make_highZ = lambda i: highZ.mirror(xb_strt + arr_h[i]*highZ.mirror_width()
 
 # Make upper Bragg periods
 xb_strtr = xb_strt
-yb_strtr = cavend[1][0][1]
+yb_strtr = cavend[1][0][1] - taper_length
 
 make_lowZ = lambda i: lowZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_width()
         + arr_l[i]*lowZ.mirror_width(), yb_strtr,w_remove=wc, g_remove=gc)
@@ -145,7 +148,7 @@ make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_wid
 #Lower feedline
 feedline = Trench(wc,gc,poly_cell, layer=2)
 
-cc, ratio, bond_pad, rfeed = [2*gc, .5, 200, 100]
+cc, ratio, bond_pad, rfeed = [2*gc, .5, 400, 100]
 feedin_length, feedlink_length, feed_st_length = [100,685,1600]
 
 xf0 = highZ.get_mirror_coordinates()[1][0]

@@ -295,10 +295,12 @@ class LayoutComponents(Shapes):
 
         if(orientation=='N'):
             straight_orient = 'V'
-            xstrt = self.__xbound - H/2
+            #xstrt = self.__xbound - H/2
             w = H*(1 + 2*rat) + 50
             l = H*rat + 50
-            feed_remove = [self.rect(w,l, self.__xbound-H/2-25, y0_rect-325)]
+            xoff = xend-xstr
+            xstrt = x0 + xoff/2
+            feed_remove = [self.rect(w,l, xstrt-w/2, y0_rect-l)]
             x0t = feed_remove[0][2][0]
             y0t = feed_remove[0][2][1]
             x1t = feed_remove[0][3][0]
@@ -309,10 +311,11 @@ class LayoutComponents(Shapes):
             y3t = ystr
         elif(orientation=='S'):
             straight_orient = 'V'
-            xstrt = self.__xbound - H/2
             w = H*(1 + 2*rat) + 50
             l = H*rat + 50
-            feed_remove = [self.rect(w,l, self.__xbound-H/2-25, y0_rect+550)]
+            xoff = xend-xstr
+            xstrt = x0 + xoff/2
+            feed_remove = [self.rect(w,l, xstrt-w/2, y0+H)]
 
             x0t = feed_remove[0][0][0]
             y0t = feed_remove[0][0][1]

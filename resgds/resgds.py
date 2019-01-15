@@ -355,13 +355,13 @@ class LayoutComponents(Shapes):
             w = H*(1 + 2*rat)
             l = H*rat
             straight = self.straight_trench(feedlength, x0 , y0-feedlength, straight_orient)
-            feed = [self.rect(w,l, xstrt-xoff, y0_rect-300)]        
+            feed = [self.rect(w,l, xstrt-xoff, y0-H-l)]        
         elif(orientation=='S'):
             straight_orient = 'V'
             w = H*(1 + 2*rat)
             l = H*rat
             straight = self.straight_trench(feedlength, x0, y0, straight_orient)
-            feed = [self.rect(w,l, xstrt-xoff, y0_rect+282.15+300)]
+            feed = [self.rect(w,l, xstrt-xoff, y0+H)]
         elif(orientation=='E'):
             straight_orient = 'H'
             w = H*rat

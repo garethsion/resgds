@@ -176,6 +176,15 @@ class Shapes:
         #self.__cell.add(l2)
         return slist
 
+    def make_quarterarc(self, r, w, x0, y0, orientation='NE', npoints=20,layer=0):
+        slist = self.quarterarc(r, w,x0,y0,orientation=orientation,npoints=npoints)
+        l1 = gdspy.Polygon(slist,layer)
+        #l2 = gdspy.Polygon(slist[1],layer)
+        
+        self.__cell.add(l1)
+        #self.__cell.add(l2)
+        return slist
+
 class BuildRect(Shapes):
     def __init__(self, cell, w, l, layer=0):
         self.__cell = cell

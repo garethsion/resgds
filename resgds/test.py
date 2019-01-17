@@ -290,86 +290,47 @@ feed_lower = LayoutComponents(poly_cell, xf5High,yf5High, width=whigh, gap=ghigh
 feedbond = feed_lower.make_feedbond(arc/2,cc, ratio, bond_pad, 
 	xf4High, yf4High+arc/2, orientation='S')
 
+# Upper feed removes
+x0_fdRem_U, y0_fdRem_U = [coords(xf0Low,-rm_width/2 + wlow/2 + glow),coords(yf0Low,-l1)]
+feed_remove_U = BuildRect(poly_cell,rm_width, l1, layer = 3)
+feed_remove_U.make(x0_fdRem_U,y0_fdRem_U,layer=3)
 
 
+x1_fdRem_U, y1_fdRem_U = [coords(x0_fdRem_U + rad_feed),coords(yf1Low)]
+rs.make_halfarc(-rad_feed, rm_width, x1_fdRem_U, y1_fdRem_U, 
+	orientation='N', npoints=40, layer=3) 
 
+x2_fdRem_U, y2_fdRem_U = [coords(x1_fdRem_U,rad_feed-rm_width),coords(y1_fdRem_U)]
+feed_remove_U = BuildRect(poly_cell,rm_width, l2+l3/4, layer = 3)
+feed_remove_U.make(x2_fdRem_U,y2_fdRem_U,layer=3)
 
+x3_fdRem_U, y3_fdRem_U = [coords(x1_fdRem_U),coords(y2_fdRem_U,l2+l3/4)]
+rs.make_quarterarc(-rad_feed, rm_width, x3_fdRem_U, y3_fdRem_U, 
+	orientation='SW', npoints=20, layer=3) 
 
+x4_fdRem_U, y4_fdRem_U = [coords(x3_fdRem_U),coords(y3_fdRem_U,rad_feed-rm_width)]
+feed_remove_U = BuildRect(poly_cell,-l2-3*l3/4-arc/2,rm_width, layer = 3)
+feed_remove_U.make(x4_fdRem_U,y4_fdRem_U,layer=3)
 
-#######################################
+x5_fdRem_U, y5_fdRem_U = [coords(x4_fdRem_U,-l2-3*l3/4-arc/2),coords(y4_fdRem_U,rad_feed)]
+rs.make_halfarc(-rad_feed, rm_width, x5_fdRem_U, y5_fdRem_U, 
+	orientation='E', npoints=40, layer=3) 
 
-# # Feedline sections [layer 2]
-# ############################################################################
+x6_fdRem_U, y6_fdRem_U = [coords(x5_fdRem_U),coords(y5_fdRem_U,rad_feed-rm_width)]
+feed_remove_U = BuildRect(poly_cell,l1+l3,rm_width, layer = 3)
+feed_remove_U.make(x6_fdRem_U,y6_fdRem_U,layer=3)
 
-# #Lower feedline
-# feedline = Trench(wc,gc,poly_cell, layer=2)
+x7_fdRem_U, y7_fdRem_U = [coords(x6_fdRem_U,l1+l3),coords(y6_fdRem_U,rad_feed)]
+rs.make_quarterarc(-rad_feed, rm_width, x7_fdRem_U, y7_fdRem_U, 
+	orientation='NW', npoints=20, layer=3) 
 
-# cc, ratio, bond_pad, rfeed = [2*gc, .5, 400, 100]
-# feedin_length, feedlink_length, feed_st_length = [100,685,1600]
+x8_fdRem_U, y8_fdRem_U = [coords(x7_fdRem_U,rad_feed-rm_width),coords(y7_fdRem_U,arc/2)]
+feed_remove_U = BuildRect(poly_cell,rm_width, -arc/2, layer = 3)
+feed_remove_U.make(x8_fdRem_U,y8_fdRem_U,layer=3)
 
-# xf0 = highZ.get_mirror_coordinates()[1][0]
-# yf0 = highZ.get_mirror_coordinates()[1][1]
-
-# xf1,yf1Low = [coords(xf0,rfeed+2*gc+wc),coords(yf0)]
-# feed_harctrL = feedline.halfarc_trench(rfeed,xf1, yf1Low,orient='N',npoints=40)
-
-
-# xf2,yf2 = [coords(xf1,rfeed),coords(yf1Low)]
-# fht_strait = feedline.straight_trench(-feed_st_length,xf2,yf2,orient='V')
-
-# # Lower feedbond
-# xf3,yf3 = [coords(xf2,-2*wc-4*gc),coords(yf2 - feed_st_length)]
-# feed_rhs = LayoutComponents(poly_cell, xf3, yf3, width=wc, gap = gc, layer=2)
-# feedbond = feed_rhs.make_feedbond(feedin_length,cc, ratio, 
-#         bond_pad, fht_strait[0][3][0], fht_strait[0][3][1], orientation='N')
-
-# # Upper feedline
-# xf0U = highZ.get_rotated_mirror_coordinates()[1][0]
-# yf0U = highZ.get_rotated_mirror_coordinates()[1][1]
-
-# xf1U,yf1LowU = [coords(xf0U,rfeed+2*gc+wc),coords(yf0U)]
-# feed_harctrU = feedline.halfarc_trench(rfeed,xf1U, yf1LowU,orient='S',npoints=40)
-
-# npts = int(np.shape(feed_harctrU)[1]/2)
-# xf2U,yf2U = [coords(feed_harctrU[0][npts-1][0]),coords(yf0U)]
-# fhtU_strait = feedline.straight_trench(feed_st_length,xf2U,yf2U,orient='V')
-
-# # Upper feedbond
-# xf3U,yf3U = [coords(xf2U,-2*wc-4*gc),coords(yf2U+feed_st_length)]
-# feed_lhs = LayoutComponents(poly_cell, xf3U,yf3U, width=wc, gap = gc, layer=2)
-# feedbond = feed_lhs.make_feedbond(feedin_length,cc, ratio, bond_pad, 
-# 	xf2U, yf3U, orientation='S')
-
-# # Feedline removes [layer 3]
-# ############################################################################
-
-# # Lower feed removes
-# x1_fdRem_L, y1_fdRem_L = [coords(xf2,-rm_width/2 + wc/2 + gc),coords(yf0)]
-# feed_remove_L = BuildRect(poly_cell,rm_width, -feed_st_length - feedin_length, layer = 3)
-# fs_remove_L = feed_remove_L.make(x1_fdRem_L,y1_fdRem_L,layer=3)
-
-# rad_feed = .5*(x1_fdRem_L - (xf0 + .5*(whigh + 2*ghigh) + rm_width/2))
-
-# feed_xhfrL, feed_yhfrL = [coords(x1_fdRem_L - rad_feed),coords(yf1Low)]
-# feed_harc_remove = rs.make_halfarc(rad_feed, rm_width,
-# 	feed_xhfrL, feed_yhfrL, orientation='N', npoints=40, layer=3) 
-
-# feed_remove = feed_rhs.make_feedbond_remove(feedin_length,cc, ratio, 
-#         bond_pad, x1_fdRem_L,feed_yhfrL-feed_st_length,x1_fdRem_L,
-#         feed_yhfrL-feed_st_length,x1_fdRem_L+rm_width, orientation='N')
-
-# # Upper feed removes
-# x1_fdRem_U, y1_fdRem_U = [coords(xf2U,-rm_width/2 + wc/2 + gc),coords(yf0U)]
-# feed_remove_U = BuildRect(poly_cell,rm_width, feed_st_length + feedin_length, layer = 3)
-# fs_remove_U = feed_remove_U.make(x1_fdRem_U,y1_fdRem_U,layer=3)
-
-# feed_xhfrU, feed_yhfrU = [coords(x1_fdRem_L - rad_feed),coords(yf1LowU)]
-# feed_harc_remove = rs.make_halfarc(rad_feed, rm_width,
-# 	feed_xhfrU, feed_yhfrU, orientation='S', npoints=40, layer=3) 
-
-# feed_remove = feed_rhs.make_feedbond_remove(feedin_length,cc, ratio, 
-#         bond_pad, x1_fdRem_U,feed_yhfrU+feed_st_length,x1_fdRem_L,
-#         feed_yhfrU+feed_st_length,x1_fdRem_U+rm_width, orientation='S')
+feed_remove = feed_lower.make_feedbond_remove(-arc/2,cc, ratio, 
+        bond_pad, x8_fdRem_U,y8_fdRem_U,x8_fdRem_U,
+        y8_fdRem_U,x8_fdRem_U+rm_width, orientation='S')
 
 ###########################################################################
 # Make gds file and open up klayout

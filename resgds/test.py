@@ -43,7 +43,7 @@ layout.make_antidot_array(0,0,10,30,0)
 # I assign coordinates first, and then build geometries accordingly
 ############################################################################
 coords = lambda x,dx=0: x+dx
-xb_strt,yb_strt = [coords(400),coords(sub_y/2)- lext2 - lext3 - 100]
+xb_strt,yb_strt = [coords(725),coords(sub_y/2)- lext2 - lext3 - 100]
 lcav1, lcav2, lcav3 = [1000, 5500, 1000]
 taper_length = 100
 
@@ -142,6 +142,7 @@ make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_wid
 [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 0]
 [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 1]
 
+
 # Feedline sections [layer 2]
 #
 #
@@ -154,8 +155,8 @@ cc, ratio, bond_pad, rfeed = [2*ghigh, .5, 400, 100]
 # Low Z feedline sections 
 feedline_low = Trench(wlow,glow,poly_cell, layer=2)
 
-xf0Low = highZ.get_mirror_coordinates()[1][0]
-yf0Low = highZ.get_mirror_coordinates()[1][1]
+xf0Low = xb_strtr + no_periods*(lowZ.mirror_width() + highZ.mirror_width())
+yf0Low = yb_strt
 feedline_low.straight_trench(l1,xf0Low,yf0Low,orient='V')
 
 xf1Low,yf1Low = [coords(xf0Low,rlow+2*gc+wc),coords(yf0Low,l1)]
@@ -183,13 +184,13 @@ xf1High,yf1High = [coords(xf0High),coords(yf0High,-rhigh)]
 feedline_high.halfarc_trench(rhigh,xf1High, yf1High,orient='W',npoints=40)
 
 xf2High,yf2High = [coords(xf1High),coords(yf1High,-rhigh - 2*ghigh - whigh)]
-feedline_high.straight_trench(l3,xf2High,yf2High,orient='H')
+feedline_high.straight_trench(l3+l1,xf2High,yf2High,orient='H')
 
-xf3High,yf3High = [coords(xf2High,l3),coords(yf2High,-rhigh)]
+xf3High,yf3High = [coords(xf2High,l3+l1),coords(yf2High,-rhigh)]
 feedline_high.quarterarc_trench(rhigh,xf3High,yf3High,orient='NE',npoints=20)
 
-xf4High,yf4High = [coords(xf3High,rhigh),coords(yf3High,-l1-arc/2)]
-feedline_high.straight_trench(l1+arc/2,xf4High,yf4High,orient='V')
+xf4High,yf4High = [coords(xf3High,rhigh),coords(yf3High,-arc/2)]
+feedline_high.straight_trench(arc/2,xf4High,yf4High,orient='V')
 
 # Lower feedbond
 xf5High,yf5High = [coords(xf4High,-2*whigh-4*ghigh),coords(yf4High-arc/2)]
@@ -197,7 +198,60 @@ feed_lower = LayoutComponents(poly_cell, xf5High,yf5High, width=whigh, gap=ghigh
 feedbond = feed_lower.make_feedbond(arc/2,cc, ratio, bond_pad, 
 	xf4High, yf4High, orientation='N')
 
-#####
+# Upper feedline sections
+#
+
+# Low Z feedline sections
+feedline_low = Trench(wlow,glow,poly_cell, layer=2)
+
+xf0Low= xb_strtr + no_periods*(lowZ.mirror_width() + highZ.mirror_width())
+yf0Low = yb_strtr
+feedline_low.straight_trench(-l1,xf0Low,yf0Low,orient='V')
+
+xf1Low,yf1Low = [coords(xf0Low,rlow+2*gc+wc),coords(yf0Low,-l1)]
+feedline_low.halfarc_trench(rlow,xf1Low, yf1Low,orient='S',npoints=40)
+
+xf2Low,yf2Low = [coords(xf1Low,rlow),coords(yf1Low)]
+feedline_low.straight_trench(l2,xf2Low,yf2Low,orient='V')
+
+xf3Low,yf3Low = [coords(xf2Low),coords(yf2Low,l2)]
+feedline_low.straight_trench(l3/4,xf3Low,yf3Low,orient='V')
+
+xf4Low,yf4Low = [coords(xf3Low,-rlow),coords(yf3Low,l3/4)]
+feedline_low.quarterarc_trench(rlow,xf4Low,yf4Low,orient='NE',npoints=20)
+
+xf5Low,yf5Low = [coords(xf4Low,-3*l3/4-arc/2),coords(yf4Low,rlow)]
+feedline_low.straight_trench(3*l3/4+arc/2,xf5Low,yf5Low,orient='H')
+
+# High Z feedline sections
+xf0High,yf0High = [coords(xf5Low,-l2),coords(yf5Low)]
+feedline_high.straight_trench(l2,xf0High,yf0High,orient='H')
+
+xf1High,yf1High = [coords(xf0High),coords(yf0High,rhigh + 2*ghigh + whigh)]
+feedline_high.halfarc_trench(rhigh,xf1High, yf1High,orient='W',npoints=40)
+
+xf2High,yf2High = [coords(xf1High),coords(yf1High,rhigh )]
+feedline_high.straight_trench(l3+l1,xf2High,yf2High,orient='H')
+
+xf3High,yf3High = [coords(xf2High,l3+l1),coords(yf2High,rhigh + 2*ghigh + whigh)]
+feedline_high.quarterarc_trench(rhigh,xf3High,yf3High,orient='SE',npoints=20)
+
+xf4High,yf4High = [coords(xf3High,rhigh),coords(yf3High)]
+feedline_high.straight_trench(arc/2,xf4High,yf4High,orient='V')
+
+# Lower feedbond
+xf5High,yf5High = [coords(xf4High,-2*whigh-4*ghigh),coords(yf4High-arc/2)]
+feed_lower = LayoutComponents(poly_cell, xf5High,yf5High, width=whigh, gap=ghigh, layer=2)
+feedbond = feed_lower.make_feedbond(arc/2,cc, ratio, bond_pad, 
+	xf4High, yf4High+arc/2, orientation='S')
+
+
+
+
+
+
+
+#######################################
 
 # # Feedline sections [layer 2]
 # ############################################################################

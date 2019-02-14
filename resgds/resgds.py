@@ -122,6 +122,30 @@ class Shapes:
         if orientation == 'V':
             return [self.rect(gap, l, x0, y0), self.rect(gap, l, x0 + gap + w, y0)]
 
+    def exptaper(self,w1,w2,L,x0,npoints=100):
+    
+        x = np.linspace(x0,x0+L,npoints)
+        #y = np.linspace(w1,w2,len(x))
+
+        y1 = np.zeros(len(x))
+        y2 = np.zeros(len(x))
+
+        for i in range(0,len(x)-1):
+            y1[i] = w1*np.exp(((x[i]/L) * np.log(w2/w1)))
+            y2[i] = -1*w1*np.exp(((x[i]/L) * np.log(w2/w1)))
+                
+        # taper = [ (x[0], x[0]) ]
+        # taper += [ (y1[0], y2[0]) ]
+        # taper += [ (x) ]
+        taper = [ (y1) ]
+        # taper += [ (x[len(x)-1], x[len(x)-1]) ]
+        # taper += [ (y1[len(x)-1], y2[len(x)-1]) ]
+        # taper += [ (list(x)) ]
+        # taper += [ (list(y2)) ]
+
+        return taper
+
+
     def taper(self,w1,g1,w2,g2,x0,y0,x1,y1):
         '''
         list of list of tuples

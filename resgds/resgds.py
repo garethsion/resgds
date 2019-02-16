@@ -122,28 +122,63 @@ class Shapes:
         if orientation == 'V':
             return [self.rect(gap, l, x0, y0), self.rect(gap, l, x0 + gap + w, y0)]
 
+    def exptaper(self):
+        d1 = [(x0, y0), (x0 + g1, y0),(x0+g2,y1),(x0, y1)]
+        d2 = [(x0 + w1 + g1, y0), (x0 + w1 + 2*g1, y0), (x0 + w2 + 2*g2, y1),(x0 + w2 + g2, y1)]
+
     def exptaper(self,w1,w2,L,x0,npoints=100):
     
         x = np.linspace(x0,x0+L,npoints)
-        #y = np.linspace(w1,w2,len(x))
+        # print(x)
 
-        y1 = np.zeros(len(x))
-        y2 = np.zeros(len(x))
+        curve1 = np.zeros(len(x))
+        curve2 = np.zeros(len(x))
 
-        for i in range(0,len(x)-1):
-            y1[i] = w1*np.exp(((x[i]/L) * np.log(w2/w1)))
-            y2[i] = -1*w1*np.exp(((x[i]/L) * np.log(w2/w1)))
+        for i in range(0,len(x)):
+            curve1[i] = w1*np.exp((x[i]/L * np.log(w2/w1)))
+            curve2[i] = -1*w1*np.exp((x[i]/L * np.log(w2/w1)))
                 
-        # taper = [ (x[0], x[0]) ]
-        # taper += [ (y1[0], y2[0]) ]
-        # taper += [ (x) ]
-        taper = [ (y1) ]
-        # taper += [ (x[len(x)-1], x[len(x)-1]) ]
-        # taper += [ (y1[len(x)-1], y2[len(x)-1]) ]
-        # taper += [ (list(x)) ]
-        # taper += [ (list(y2)) ]
+        x0 = x[0], x[0]
+        y0 = curve1[0], curve2[0]
 
+        taper = [ list(zip(x0,y0)) ]
+
+        x1 = list(x) 
+        y1 = list(curve1)
+        taper += [ list(zip(x1,y1)) ]
+
+        x2 = x[len(x)-1], x[len(x)-1] 
+        y2 = curve1[len(x)-1], curve2[len(x)-1] 
+        taper += [ list(zip(x2,y2)) ]
+        
+        x3 =  x 
+        y3 =  curve2
+        taper += [ list(zip(x3,y3)) ]
+        
         return taper
+
+    # def exptaper(self,w1,w2,L,x0,npoints=100):
+    
+    #     x = np.linspace(x0,x0+L,npoints)
+    #     #y = np.linspace(w1,w2,len(x))
+
+    #     y1 = np.zeros(len(x))
+    #     y2 = np.zeros(len(x))
+
+    #     for i in range(0,len(x)-1):
+    #         y1[i] = w1*np.exp(((x[i]/L) * np.log(w2/w1)))
+    #         y2[i] = -1*w1*np.exp(((x[i]/L) * np.log(w2/w1)))
+                
+    #     # taper = [ (x[0], x[0]) ]
+    #     # taper += [ (y1[0], y2[0]) ]
+    #     # taper += [ (x) ]
+    #     taper = [ (y1) ]
+    #     # taper += [ (x[len(x)-1], x[len(x)-1]) ]
+    #     # taper += [ (y1[len(x)-1], y2[len(x)-1]) ]
+    #     # taper += [ (list(x)) ]
+    #     # taper += [ (list(y2)) ]
+
+    #     return taper
 
 
     def taper(self,w1,g1,w2,g2,x0,y0,x1,y1):

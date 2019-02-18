@@ -81,17 +81,17 @@ cav_rm += [rs.halfarc(rlow-gc,crmw,cav_x3r,cav_y3r,orientation='N',npoints=40)]
 cav_x4r,cav_y4r = [coords(cav_x0r),coords(cav_y3r)]
 cav_rm += [rs.rect(crmw,-lcav1,cav_x4r,cav_y4r)]
 
+for i in range(0,len(cav_rm)):
+	remove = gdspy.Polygon(cav_rm[i],2)
+	substrate = gdspy.fast_boolean(substrate,remove, 'not', 
+		precision=1e-9, max_points=1000, layer=0)
 
-# Bragg Mirror Sections [layer 2]
+
+# Bragg Mirror Sections
 ###########################################################################
-# no_periods = 4
-# highZ = bragg.BraggCST(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
-# bragg = highZ.mirror(xb_strt+wc/2-whigh/2,yb_strt)
 
-# for i in range(0,len(bragg)):
-# 	mirror = gdspy.Polygon(bragg[i],3)
-# 	poly_cell.add(mirror)
-
+# LOWER BRAGG SECTIONS
+######################
 no_periods = 4
 highZ = bragg.BraggCST(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
 lowZ = bragg.BraggCST(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
@@ -123,6 +123,9 @@ lz += [lowZ.mirror(xlz4,ylz4, w_remove=wc, g_remove=gc)]
 xhz4,yhz4 = [coords(xlz4-wlow/2-whigh/2+lowZ.mirror_width()),coords(yb_strt)]
 hz += [highZ.mirror(xhz4,yhz4, w_remove=wc, g_remove=gc)]
 
+# LOWER BRAGG SECTION REMOVES
+#############################
+
 ll1,ll2,ll3,arcl = lowZ.section_lengths(wlow,glow)
 lengths_low=[ll1,ll2,ll3,arcl]
 
@@ -153,31 +156,12 @@ rm += [rmlZ.mirror_removes(xrm7,yrm7,lengths_low)]
 xrm8,yrm8 = [coords(xrm7,-wlow+lowZ.mirror_width()),coords(yb_strt)]
 rm += [rmhZ.mirror_removes(xrm8,yrm8,lengths_high)]
 
-# # Vectors to store shifting numbers for making mirrors
-# arr_l = np.repeat(np.arange(0,no_periods),2*np.ones(no_periods,dtype=int))
-# arr_h = np.append(arr_l[1:],[no_periods], axis=0)
-
-# # Make lower Bragg periods
-# make_lowZ = lambda i: lowZ.mirror(xb_strt+wc/2-wlow/2 + arr_h[i]*highZ.mirror_width()
-#         + arr_l[i]*lowZ.mirror_width(), yb_strt, w_remove=wc, g_remove=gc)
-
-# make_highZ = lambda i: highZ.mirror(xb_strt + wc/2 - wlow - whigh/2 +
-# 	arr_l[i]*highZ.mirror_width() + arr_h[i]*lowZ.mirror_width(),yb_strt, w_remove=wc, g_remove=gc)
-
-# lz = [make_lowZ(x) for x in range(len(arr_l)) if x % 2 == 0]
-# hz = [make_highZ(x) for x in range(len(arr_l)) if x % 2 == 1]
-
-mirr = []
 for i in range(0, np.shape(lz)[0]):
 	for j in range(0, np.shape(lz)[1]):
 		mirror_lz = gdspy.Polygon(lz[i][j],1)
 		mirror_hz = gdspy.Polygon(hz[i][j],1)
 		poly_cell.add(mirror_lz)
 		poly_cell.add(mirror_hz)
-		# mirr = gdspy.fast_boolean(mirror_lz,mirror_hz,'and',
-		# 	precision=1e-9, max_points=1000, layer=1)
-
-# poly_cell.add(mirr)
 
 for i in range(0, np.shape(rm)[0]):
 	for j in range(0, np.shape(rm)[1]):
@@ -185,14 +169,71 @@ for i in range(0, np.shape(rm)[0]):
 		substrate = gdspy.fast_boolean(substrate,mirror_rm, 'not', 
 		precision=1e-9, max_points=1000, layer=0)
 
-# for i in range(0,len(lz)):
-# 	mirror = gdspy.Polygon(lz[i],3)
-# 	poly_cell.add(mirror)
+# UPPER BRAGG SECTIONS
+######################
 
+xlz1,ylz1 = [coords(xb_strt+wc/2-wlow/2),coords(cav_y4,-lcav1)]
+lz = [lowZ.rotate_mirror(xlz1,ylz1, w_remove=wc, g_remove=gc)]
 
-for i in range(0,len(cav_rm)):
-	remove = gdspy.Polygon(cav_rm[i],2)
-	substrate = gdspy.fast_boolean(substrate,remove, 'not', 
+xhz1,yhz1 = [coords(xlz1-wlow/2-whigh/2+lowZ.mirror_width()),coords(ylz1)]
+hz = [highZ.rotate_mirror(xhz1,yhz1, w_remove=wc, g_remove=gc)]
+
+xlz2,ylz2 = [coords(xhz1-whigh/2-wlow/2+highZ.mirror_width()),coords(yhz1)]
+lz += [lowZ.rotate_mirror(xlz2,ylz2, w_remove=wc, g_remove=gc)]
+
+xhz2,yhz2 = [coords(xlz2-wlow/2-whigh/2+lowZ.mirror_width()),coords(ylz1)]
+hz += [highZ.rotate_mirror(xhz2,yhz2, w_remove=wc, g_remove=gc)]
+
+xlz3,ylz3 = [coords(xhz2-whigh/2-wlow/2+highZ.mirror_width()),coords(yhz1)]
+lz += [lowZ.rotate_mirror(xlz3,ylz3, w_remove=wc, g_remove=gc)]
+
+xhz3,yhz3 = [coords(xlz3-wlow/2-whigh/2+lowZ.mirror_width()),coords(ylz1)]
+hz += [highZ.rotate_mirror(xhz3,yhz3, w_remove=wc, g_remove=gc)]
+
+xlz4,ylz4 = [coords(xhz3-whigh/2-wlow/2+highZ.mirror_width()),coords(yhz1)]
+lz += [lowZ.rotate_mirror(xlz4,ylz4, w_remove=wc, g_remove=gc)]
+
+xhz4,yhz4 = [coords(xlz4-wlow/2-whigh/2+lowZ.mirror_width()),coords(ylz1)]
+hz += [highZ.rotate_mirror(xhz4,yhz4, w_remove=wc, g_remove=gc)]
+
+for i in range(0, np.shape(lz)[0]):
+	for j in range(0, np.shape(lz)[1]):
+		mirror_lz = gdspy.Polygon(lz[i][j],1)
+		mirror_hz = gdspy.Polygon(hz[i][j],1)
+		poly_cell.add(mirror_lz)
+		poly_cell.add(mirror_hz)
+
+# UPPER BRAGG SECTION REMOVES
+#############################
+
+xrm1,yrm1 = [coords(xb_strt,-rmw/2+wc/2),coords(ylz1)]
+rm = [rmlZ.rotate_mirror_removes(xrm1,yrm1,lengths_low)]
+
+xrm2,yrm2 = [coords(xrm1,-wlow+lowZ.mirror_width()),coords(ylz1)]
+rm += [rmhZ.rotate_mirror_removes(xrm2,yrm2,lengths_high)]
+
+xrm3,yrm3 = [coords(xrm2,-whigh+highZ.mirror_width()),coords(ylz1)]
+rm += [rmlZ.rotate_mirror_removes(xrm3,yrm3,lengths_low)]
+
+xrm4,yrm4 = [coords(xrm3,-wlow+lowZ.mirror_width()),coords(ylz1)]
+rm += [rmhZ.rotate_mirror_removes(xrm4,yrm4,lengths_high)]
+
+xrm5,yrm5 = [coords(xrm4,-whigh+highZ.mirror_width()),coords(ylz1)]
+rm += [rmlZ.rotate_mirror_removes(xrm5,yrm5,lengths_low)]
+
+xrm6,yrm6 = [coords(xrm5,-wlow+lowZ.mirror_width()),coords(ylz1)]
+rm += [rmhZ.rotate_mirror_removes(xrm6,yrm6,lengths_high)]
+
+xrm7,yrm7 = [coords(xrm6,-whigh+highZ.mirror_width()),coords(ylz1)]
+rm += [rmlZ.rotate_mirror_removes(xrm7,yrm7,lengths_low)]
+
+xrm8,yrm8 = [coords(xrm7,-wlow+lowZ.mirror_width()),coords(ylz1)]
+rm += [rmhZ.rotate_mirror_removes(xrm8,yrm8,lengths_high)]
+
+for i in range(0, np.shape(rm)[0]):
+	for j in range(0, np.shape(rm)[1]):
+		mirror_rm = gdspy.Polygon(rm[i][j],2)
+		substrate = gdspy.fast_boolean(substrate,mirror_rm, 'not', 
 		precision=1e-9, max_points=1000, layer=0)
 
 poly_cell.add(substrate)

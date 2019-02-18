@@ -374,6 +374,69 @@ class BraggCST:
 
         return bragg
 
+    def rotate_mirror(self, x0, y0, w_remove=0, g_remove=0):
+        """
+            Defines a quarterwave Bragg mirror section.
+        """
+        coords = lambda x,dx=0: x+dx
+        rm_width = 4*w_remove + 2*g_remove
+        l1, l2, l3, arc = self.section_lengths(w_remove,g_remove)
+        rs = Shapes(self.__cell)
+
+        # Make Bragg mirror sections
+        #
+        bragg = [rs.rect(self.__width,-l1, x0, y0)]
+
+        x1,y1 = [coords(x0,self.__width+self.__radius), coords(y0,-l1)]
+        bragg += [rs.halfarc(self.__radius, self.__width, x1, y1, orientation='S', npoints=40)]
+
+        x2,y2 = [coords(x1,self.__radius), coords(y1,l2)]
+        bragg += [rs.rect(self.__width,-l2,x2,y2)]
+
+        x3,y3 = [coords(x2,self.__radius+self.__width), coords(y2)]
+        bragg += [rs.halfarc(self.__radius, self.__width,x3, y3, orientation='N', npoints=40)]
+
+        x4,y4 = [coords(x3,self.__radius), coords(y3)] 
+        bragg += [rs.rect(self.__width,-l3,x4,y4)]
+
+        self.__xstrt = x1
+        self.__xstop = x4
+        self.__ystrt = y1
+        self.__ystop = y4 + l3
+
+        return bragg
+
+    def rotate_mirror_removes(self, x0, y0,lengths):
+        """
+            Defines a quarterwave Bragg mirror section.
+        """
+        coords = lambda x,dx=0: x+dx
+        l1, l2, l3, arc = lengths
+        rs = Shapes(self.__cell)
+
+        # Make Bragg mirror sections
+        #
+        bragg = [rs.rect(self.__width,-l1, x0, y0)]
+
+        x1,y1 = [coords(x0,self.__radius+self.__width), coords(y0,-l1)]
+        bragg += [rs.halfarc(self.__radius, self.__width, x1, y1, orientation='S', npoints=40)]
+
+        x2,y2 = [coords(x1,self.__radius), coords(y1,l2)]
+        bragg += [rs.rect(self.__width,-l2,x2,y2)]
+
+        x3,y3 = [coords(x2,self.__radius+self.__width), coords(y2)]
+        bragg += [rs.halfarc(self.__radius, self.__width,x3, y3, orientation='N', npoints=40)]
+
+        x4,y4 = [coords(x3,self.__radius), coords(y3)] 
+        bragg += [rs.rect(self.__width,-l3,x4,y4)]
+
+        self.__xstrt = x1
+        self.__xstop = x4
+        self.__ystrt = y1
+        self.__ystop = y4 + l3
+
+        return bragg
+
     def mirror_width(self):
         """
             Method which calculates the total width of the Bragg mirror half period 

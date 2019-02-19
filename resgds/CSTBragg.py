@@ -13,7 +13,7 @@ layout_file ='CSTBragg1.gds'
 
 # Parameters
 #__________________________________________________________
-sub_x, sub_y = [4000, 9000] # substrate dimensions
+sub_x, sub_y = [4000, 7922] # substrate dimensions
 wc, gc, lc = [8.11, 17.85, 8108.45] # Cavity width, gap, length
 wlow, llow = [30.44, 4051.32]  # Low Z section
 whigh, lhigh = [2, 4051.32] # High Z section
@@ -38,7 +38,7 @@ substrate = gdspy.Polygon(sub, layer=0)
 # Cavity sections
 #
 coords = lambda x,dx=0: x+dx
-xb_strt,yb_strt = [coords(725),coords(sub_y/2)- lext2 - lext3 - 140]
+xb_strt,yb_strt = [coords(1250),coords(sub_y/2)- lext2 - lext3 - 140]
 lcav1, lcav2, lcav3 = [1000, 5500, 100]
 taper_length = 100
 
@@ -235,6 +235,233 @@ for i in range(0, np.shape(rm)[0]):
 		mirror_rm = gdspy.Polygon(rm[i][j],2)
 		substrate = gdspy.fast_boolean(substrate,mirror_rm, 'not', 
 		precision=1e-9, max_points=1000, layer=0)
+
+
+# FEEDLINE SECTIONS
+####################################################################
+
+# LOWER FEED 
+#
+l1, l2, l3, arc = highZ.section_lengths(wc,gc)
+cc, ratio, bond_pad, rfeed = [2*ghigh, .5, 400, 100]
+feedin_length, feedlink_length, feed_st_length = [100,685,1600]
+rstrt = rlow + 100
+rlow = 100
+
+# Low Z feedline sections
+#
+xf0Low = xhz4 + highZ.mirror_width() - wlow/2 - whigh/2#xb_strt + no_periods*(lowZ.mirror_width() + highZ.mirror_width())
+yf0Low = yb_strt
+feedline = [rs.rect(wlow,l1,xf0Low,yf0Low)]
+
+xf1Low,yf1Low = [coords(xf0Low,rstrt+wlow),coords(yf0Low,l1)]
+feedline += [rs.halfarc(rstrt,wlow,xf1Low, yf1Low,orientation='N',npoints=40)]
+
+xf2Low,yf2Low = [coords(xf1Low,rstrt),coords(yf1Low)]
+feedline += [rs.rect(wlow,-l2,xf2Low,yf2Low)]
+
+xf3Low,yf3Low = [coords(xf2Low),coords(yf2Low,-l2)]
+feedline += [rs.rect(wlow,-l3/4,xf3Low,yf3Low)]
+
+xf4Low,yf4Low = [coords(xf3Low,-rlow),coords(yf3Low,-l3/4)]
+feedline += [rs.quarterarc(rlow,wlow,xf4Low,yf4Low,orientation='SE',npoints=20)]
+
+xf5Low,yf5Low = [coords(xf4Low,-3*l3/4-arc/2+230),coords(yf4Low, - rlow - wlow)]
+feedline += [rs.rect(3*l3/4+arc/2-230,wlow,xf5Low,yf5Low)]
+
+# High Z feedline sections
+#
+xf0High,yf0High = [coords(xf5Low,-l2-733/2),coords(yf5Low,+wlow/2-whigh/2)]
+feedline += [rs.rect(l2+733/2,whigh,xf0High,yf0High)]
+
+xf1High,yf1High = [coords(xf0High),coords(yf0High,-rhigh)]
+feedline += [rs.halfarc(rhigh,whigh,xf1High, yf1High,orientation='W',npoints=40)]
+
+xf2High,yf2High = [coords(xf1High),coords(yf1High,-rhigh - whigh)]
+feedline += [rs.rect(l3+l1-733/2,whigh,xf2High,yf2High)]
+
+xf3High,yf3High = [coords(xf2High,l3+l1-733/2),coords(yf2High,-rhigh)]
+feedline += [rs.quarterarc(rhigh,whigh,xf3High,yf3High,orientation='NE',npoints=20)]
+
+xf4High,yf4High = [coords(xf3High,rhigh),coords(yf3High,-arc/2)]
+feedline += [rs.rect(whigh,arc/2,xf4High,yf4High)]
+
+for i in range(0,np.shape(feedline)[0]):
+	feed = gdspy.Polygon(feedline[i],1)
+	poly_cell.add(feed)
+
+# Lower Feedbond
+#
+xf5High,yf5High = [coords(xf4High,-2*whigh-4*ghigh),coords(yf4High-arc/2)]
+
+H=400
+w = H*(1 + 2*.5)
+l = H*.5
+
+xbond, ybond = [coords(xf4High),coords(yf4High)]
+feedbond = [rs.triangle(xbond+whigh,ybond,xbond,ybond,
+	xbond-400,ybond-300,xbond+400,ybond-300)]
+
+
+# LOWER FEEDLINE REMOVES
+########################
+# Low Z feedline removes
+#
+
+rstrt = rstrt - 7.185
+xf0Low = xhz4 + highZ.mirror_width() - rmw/2 - 1
+yf0Lowr = yf0Low
+feedline_remove = [rs.rect(rmw,l1,xf0Low,yf0Low)]
+
+xf1Low,yf1Low = [coords(xf0Low,rstrt+rmw),coords(yf0Low,l1)]
+feedline_remove += [rs.halfarc(rstrt,rmw,xf1Low, yf1Low,orientation='N',npoints=40)]
+
+xf2Low,yf2Low = [coords(xf1Low,rstrt),coords(yf1Low)]
+feedline_remove += [rs.rect(rmw,-l2,xf2Low,yf2Low)]
+
+xf3Low,yf3Low = [coords(xf2Low),coords(yf2Low,-l2)]
+feedline_remove += [rs.rect(rmw,-l3/4,xf3Low,yf3Low)]
+
+rstrt = rstrt + 39
+xf4Low,yf4Low = [coords(xf3Low,-rstrt/2),coords(yf3Low,-l3/4)]
+feedline_remove += [rs.quarterarc(rstrt/2,rmw,xf4Low,yf4Low,orientation='SE',npoints=20)]
+
+xf5Low,yf5Low = [coords(xf4Low,-3*l3/4-arc/2+230),coords(yf4Low, - rstrt/2 - rmw)]
+feedline_remove += [rs.rect(3*l3/4+arc/2-230,rmw,xf5Low,yf5Low)]
+
+# High Z feedline removes
+#
+xf0High,yf0High = [coords(xf5Low,-l2-733/2),coords(yf5Low)]
+feedline_remove += [rs.rect(l2+733/2,rmw,xf0High,yf0High)]
+
+rharc = 34.05
+xf1High,yf1High = [coords(xf0High),coords(yf0High,-rharc)]
+feedline_remove += [rs.halfarc(rharc,rmw,xf1High, yf1High,orientation='W',npoints=40)]
+
+xf2High,yf2High = [coords(xf1High),coords(yf1High,-rharc - rmw)]
+feedline_remove += [rs.rect(l3+l1-733/2,rmw,xf2High,yf2High)]
+
+xf3High,yf3High = [coords(xf2High,l3+l1-733/2),coords(yf2High,-rharc)]
+feedline_remove += [rs.quarterarc(rharc,rmw,xf3High,yf3High,orientation='NE',npoints=20)]
+
+xf4High,yf4High = [coords(xf3High,rharc),coords(yf3High,-arc/2)]
+feedline_remove += [rs.rect(rmw,arc/2,xf4High,yf4High)]
+
+xbond, ybond = [coords(xf4High),coords(yf4High)]
+feedline_remove += [rs.triangle(xbond+rmw,ybond,xbond,ybond,
+	xbond-440,ybond-320,xbond+480,ybond-320)]
+
+# UPPER FEED 
+#
+# Low Z feedline sections
+#
+xf0Low = xhz4 + highZ.mirror_width() - wlow/2 - whigh/2#xb_strt + no_periods*(lowZ.mirror_width() + highZ.mirror_width())
+yf0Low = yhz4
+feedline = [rs.rect(wlow,-l1,xf0Low,yf0Low)]
+
+xf1Low,yf1Low = [coords(xf0Low,rstrt+wlow),coords(yf0Low,-l1)]
+feedline += [rs.halfarc(rstrt,wlow,xf1Low, yf1Low,orientation='S',npoints=40)]
+
+xf2Low,yf2Low = [coords(xf1Low,rstrt),coords(yf1Low)]
+feedline += [rs.rect(wlow,l2,xf2Low,yf2Low)]
+
+xf3Low,yf3Low = [coords(xf2Low),coords(yf2Low,l2)]
+feedline += [rs.rect(wlow,l3/4,xf3Low,yf3Low)]
+
+xf4Low,yf4Low = [coords(xf3Low,-rlow),coords(yf3Low,l3/4)]
+feedline += [rs.quarterarc(rlow,wlow,xf4Low,yf4Low,orientation='NE',npoints=20)]
+
+xf5Low,yf5Low = [coords(xf4Low,-3*l3/4-arc/2+230),coords(yf4Low, + rlow)]
+feedline += [rs.rect(3*l3/4+arc/2-230,wlow,xf5Low,yf5Low)]
+
+# High Z feedline sections
+#
+xf0High,yf0High = [coords(xf5Low,-l2-733/2),coords(yf5Low,+wlow/2-whigh/2)]
+feedline += [rs.rect(l2+733/2,whigh,xf0High,yf0High)]
+
+xf1High,yf1High = [coords(xf0High),coords(yf0High,rhigh+whigh)]
+feedline += [rs.halfarc(rhigh,whigh,xf1High, yf1High,orientation='W',npoints=40)]
+
+xf2High,yf2High = [coords(xf1High),coords(yf1High,+rhigh)]
+feedline += [rs.rect(l3+l1-733/2,whigh,xf2High,yf2High)]
+
+xf3High,yf3High = [coords(xf2High,l3+l1-733/2),coords(yf2High,rhigh+whigh)]
+feedline += [rs.quarterarc(rhigh,whigh,xf3High,yf3High,orientation='SE',npoints=20)]
+
+xf4High,yf4High = [coords(xf3High,rhigh),coords(yf3High,arc/2)]
+feedline += [rs.rect(whigh,-arc/2,xf4High,yf4High)]
+
+xbond, ybond = [coords(xf4High),coords(yf4High)]
+feedline += [rs.triangle(xbond,ybond,xbond+whigh,ybond,
+	xbond+400,ybond+300,xbond-400,ybond+300)]
+
+for i in range(np.shape(feedline)[0]):
+	feed = gdspy.Polygon(feedline[i],1)
+	poly_cell.add(feed)
+
+# UPPER FEEDLINE REMOVES
+########################
+# Low Z feedline removes
+#
+
+rstrt = rstrt - 7.185
+xf0Low = xhz4 + highZ.mirror_width() - rmw/2-1
+yf0Lowr = yf0Low
+feedline_remove += [rs.rect(rmw,-l1,xf0Low,yf0Low)]
+
+xf1Low,yf1Low = [coords(xf0Low,rstrt+rmw),coords(yf0Low,-l1)]
+feedline_remove += [rs.halfarc(rstrt,rmw,xf1Low, yf1Low,orientation='S',npoints=40)]
+
+xf2Low,yf2Low = [coords(xf1Low,rstrt),coords(yf1Low)]
+feedline_remove += [rs.rect(rmw,l2,xf2Low,yf2Low)]
+
+xf3Low,yf3Low = [coords(xf2Low),coords(yf2Low,l2)]
+feedline_remove += [rs.rect(rmw,l3/4,xf3Low,yf3Low)]
+
+rstrt = rstrt+7.185
+xf4Low,yf4Low = [coords(xf3Low,-rstrt/2),coords(yf3Low,l3/4)]
+feedline_remove += [rs.quarterarc(rstrt/2,rmw,xf4Low,yf4Low,orientation='NE',npoints=20)]
+
+xf5Low,yf5Low = [coords(xf4Low,-3*l3/4-arc/2+230),coords(yf4Low, + rstrt/2)]
+feedline_remove += [rs.rect(3*l3/4+arc/2-230,rmw,xf5Low,yf5Low)]
+
+# High Z feedline removes
+#
+xf0High,yf0High = [coords(xf5Low,-l2-733/2),coords(yf5Low)]
+feedline_remove += [rs.rect(l2+733/2,rmw,xf0High,yf0High)]
+
+rharc = 34.05
+xf1High,yf1High = [coords(xf0High),coords(yf0High,rharc+rmw)]
+feedline_remove += [rs.halfarc(rharc,rmw,xf1High, yf1High,orientation='W',npoints=40)]
+
+xf2High,yf2High = [coords(xf1High),coords(yf1High,rharc)]
+feedline_remove += [rs.rect(l3+l1-733/2,rmw,xf2High,yf2High)]
+
+xf3High,yf3High = [coords(xf2High,l3+l1-733/2),coords(yf2High,rharc+rmw)]
+feedline_remove += [rs.quarterarc(rharc,rmw,xf3High,yf3High,orientation='SE',npoints=20)]
+
+xf4High,yf4High = [coords(xf3High,rharc),coords(yf3High,arc/2)]
+feedline_remove += [rs.rect(rmw,-arc/2,xf4High,yf4High)]
+
+xbond, ybond = [coords(xf4High),coords(yf4High)]
+feedline_remove += [rs.triangle(xbond,ybond,xbond+rmw,ybond,
+	xbond+480,ybond+320,xbond-440,ybond+320)]
+
+# for i in range(np.shape(feedline_remove)[0]):
+# 	feed = gdspy.Polygon(feedline_remove[i],2)
+# 	poly_cell.add(feed)
+
+###########
+
+################
+for i in range(0, np.shape(feedline_remove)[0]):
+	feed_rm = gdspy.Polygon(feedline_remove[i],2)
+	substrate = gdspy.fast_boolean(substrate,feed_rm, 'not', 
+		precision=1e-9, max_points=1000, layer=0)
+
+for i in range(0,np.shape(feedbond)[0]):
+	bond = gdspy.Polygon(feedbond[i],1)
+	poly_cell.add(bond)
 
 poly_cell.add(substrate)
 

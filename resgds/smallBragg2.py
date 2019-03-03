@@ -43,7 +43,7 @@ layout.make_antidot_array(0,0,10,30,0)
 # I assign coordinates first, and then build geometries accordingly
 ############################################################################
 coords = lambda x,dx=0: x+dx
-xb_strt,yb_strt = [coords(1450),coords(sub_y/2)- lext2 - lext3 - 140]
+xb_strt,yb_strt = [coords(1000),coords(sub_y/2)- lext2 - lext3 - 140]
 lcav1, lcav2, lcav3 = [1000, 5500, 1000]
 taper_length = 100
 
@@ -152,7 +152,7 @@ make_highZ = lambda i: highZ.rotate_mirror2(xb_strtr + arr_h[i]*highZ.mirror_wid
 l1, l2, l3, arc = highZ.section_lengths(wc,gc)
 cc, ratio, bond_pad, rfeed = [2*ghigh, .5, 400, 100]
 feedin_length, feedlink_length, feed_st_length = [100,685,1600]
-rstrt = rlow + 0
+rstrt = rlow #+ 70
 rlow = 100
 
 # Low Z feedline sections 
@@ -174,27 +174,39 @@ feedline_low.straight_trench(-l3/4,xf3Low,yf3Low,orient='V')
 xf4Low,yf4Low = [coords(xf3Low,-rlow),coords(yf3Low,-l3/4)]
 feedline_low.quarterarc_trench(rlow,xf4Low,yf4Low,orient='SE',npoints=20)
 
-xf5Low,yf5Low = [coords(xf4Low,-3*l3/4-arc/2+230),coords(yf4Low,-2*glow - wlow - rlow)]
-feedline_low.straight_trench(3*l3/4+arc/2-230,xf5Low,yf5Low,orient='H')
+lf = -3*l3/4-arc/2+230-373
+lfm = 3*l3/4+arc/2-230+373
+xf5Low,yf5Low = [coords(xf4Low,lf),coords(yf4Low,-2*glow - wlow - rlow)]
+feedline_low.straight_trench(lfm,xf5Low,yf5Low,orient='H')
 
 # High Z feedline sections
 feedline_high = Trench(whigh,ghigh,poly_cell, layer=2)
 
-hs1 = -l2-733/2
-hs1m = l2+733/2
-xf0High,yf0High = [coords(xf5Low,hs1/2),coords(yf5Low)]
-feedline_high.straight_trench(hs1m/2,xf0High,yf0High,orient='H')
+hs1 = -l2-733/2+373/2
+hs1m = l2+733/2-373/2
+xf0High,yf0High = [coords(xf5Low,hs1/2+42),coords(yf5Low)]
+feedline_high.straight_trench(hs1m/2-42,xf0High,yf0High,orient='H')
 
 xf1High,yf1High = [coords(xf0High),coords(yf0High,-rhigh)]
 feedline_high.halfarc_trench(rhigh,xf1High, yf1High,orient='W',npoints=40)
 
+lf2 = l3+l1-733/2-hs1/2+373/2
+lf = 1680+42+452/2
+lfp = 1000-452/2
+
 xf2High,yf2High = [coords(xf1High),coords(yf1High,-rhigh - 2*ghigh - whigh)]
-feedline_high.straight_trench(l3+l1-733/2-hs1/2,xf2High,yf2High,orient='H')
+feedline_high.straight_trench(lf,xf2High,yf2High,orient='H')
 
-xf3High,yf3High = [coords(xf2High,l3+l1-733/2-hs1/2),coords(yf2High,-rhigh)]
-feedline_high.quarterarc_trench(rhigh,xf3High,yf3High,orient='NE',npoints=20)
+xf2pHigh,yf2pHigh = [coords(xf1High,lf),coords(yf1High,-2*rhigh-2*ghigh-whigh)]
+feedline_high.halfarc_trench(rhigh,xf2pHigh, yf2pHigh,orient='E',npoints=40)
 
-xf4High,yf4High = [coords(xf3High,rhigh),coords(yf3High,-arc/2)]
+xf2ppHigh,yf2ppHigh = [coords(xf2pHigh,-lfp),coords(yf2pHigh,-rhigh-2*ghigh-whigh)]
+feedline_high.straight_trench(lfp,xf2ppHigh,yf2ppHigh,orient='H')
+
+xf3High,yf3High = [coords(xf2ppHigh),coords(yf2ppHigh,-rhigh)]
+feedline_high.quarterarc_trench(rhigh,xf3High,yf3High,orient='NW',npoints=20)
+
+xf4High,yf4High = [coords(xf3High,-rhigh-2*ghigh-whigh),coords(yf3High,-arc/2)]
 feedline_high.straight_trench(arc/2,xf4High,yf4High,orient='V')
 
 # Lower feedbond
@@ -224,25 +236,33 @@ x3_fdRem_L, y3_fdRem_L = [coords(x2_fdRem_L-rqarc+rm_width),coords(y2_fdRem_L,-l
 rs.make_quarterarc(rqarc, -rm_width, x3_fdRem_L, y3_fdRem_L, 
 	orientation='SE', npoints=20, layer=3) 
 
-x4_fdRem_L, y4_fdRem_L = [coords(x3_fdRem_L),coords(y3_fdRem_L,-rqarc)]
-feed_remove_L = BuildRect(poly_cell,-3*l3/4-arc/2+230+hs1/2,rm_width, layer = 3)
+x4_fdRem_L, y4_fdRem_L = [coords(x3_fdRem_L,-lfm+hs1/2+42),coords(y3_fdRem_L,-rqarc)]
+feed_remove_L = BuildRect(poly_cell,lfm-hs1/2-42,rm_width, layer = 3)
 feed_remove_L.make(x4_fdRem_L,y4_fdRem_L,layer=3)
 
 rharc = abs(.5*(y4_fdRem_L - (yf2High + .5*(whigh + 2*ghigh) + rm_width/2)))
-x5_fdRem_L, y5_fdRem_L = [coords(x4_fdRem_L,-3*l3/4-arc/2+230+hs1/2),coords(y4_fdRem_L,-rharc)]
+x5_fdRem_L, y5_fdRem_L = [coords(x4_fdRem_L),coords(y4_fdRem_L,-rharc)]
 rs.make_halfarc(rharc, rm_width, x5_fdRem_L, y5_fdRem_L, 
 	orientation='W', npoints=40, layer=3) 
 
 x6_fdRem_L, y6_fdRem_L = [coords(x5_fdRem_L),coords(y5_fdRem_L,-rharc-rm_width)]
-feed_remove_L = BuildRect(poly_cell,l1+l3-733/2-hs1/2,rm_width, layer = 3)
+feed_remove_L = BuildRect(poly_cell,lf,rm_width, layer = 3)
 feed_remove_L.make(x6_fdRem_L,y6_fdRem_L,layer=3)
 
-x7_fdRem_L, y7_fdRem_L = [coords(x6_fdRem_L,l1+l3-733/2-hs1/2),coords(y6_fdRem_L)]
+x6p_fdRem_L, y6p_fdRem_L = [coords(x5_fdRem_L,lf),coords(y5_fdRem_L,-2*rharc-rm_width)]
+rs.make_halfarc(rharc, rm_width, x6p_fdRem_L, y6p_fdRem_L, 
+	orientation='E', npoints=40, layer=3) 
+
+x6pp_fdRem_L, y6pp_fdRem_L = [coords(x6p_fdRem_L,-lfp),coords(y6p_fdRem_L,-rharc-2*rm_width/2)]
+feed_remove_L = BuildRect(poly_cell,lfp,rm_width, layer = 3)
+feed_remove_L.make(x6pp_fdRem_L,y6pp_fdRem_L,layer=3)
+
+x7_fdRem_L, y7_fdRem_L = [coords(x6pp_fdRem_L),coords(y6pp_fdRem_L,-2*rharc-rm_width)]
 rqarc2 = xf4High+rm_width-x7_fdRem_L-12
 rs.make_quarterarc(-rqarc2, rm_width, x7_fdRem_L, y7_fdRem_L-rqarc2+rm_width, 
-	orientation='SW', npoints=20, layer=3) 
+	orientation='NW', npoints=20, layer=3) 
 
-x8_fdRem_L, y8_fdRem_L = [coords(x7_fdRem_L,rharc),coords(y7_fdRem_L,-arc/2-rharc)]
+x8_fdRem_L, y8_fdRem_L = [coords(x7_fdRem_L,-rharc-rm_width),coords(y7_fdRem_L)]
 feed_remove_L = BuildRect(poly_cell,rm_width, arc/2, layer = 3)
 feed_remove_L.make(x8_fdRem_L,y8_fdRem_L,layer=3)
 
@@ -250,11 +270,13 @@ feed_remove = feed_lower.make_feedbond_remove(arc/2,cc, ratio,
         bond_pad, x8_fdRem_L,y8_fdRem_L,x8_fdRem_L,
         y8_fdRem_L,x8_fdRem_L+rm_width, orientation='N')
 
-# Upper feedline sections
-#
+# # Upper feedline sections
+# #
 
-# Low Z feedline sections
-feedline_low = Trench(wlow,glow,poly_cell, layer=2)
+# # Low Z feedline sections
+xf0Low= xb_strtr + no_periods*(lowZ.mirror_width() + highZ.mirror_width())
+yf0Low = yb_strtr
+feedline_low.straight_trench(-l1,xf0Low,yf0Low,orient='V')
 
 xf0Low= xb_strtr + no_periods*(lowZ.mirror_width() + highZ.mirror_width())
 yf0Low = yb_strtr
@@ -272,72 +294,138 @@ feedline_low.straight_trench(l3/4,xf3Low,yf3Low,orient='V')
 xf4Low,yf4Low = [coords(xf3Low,-rlow),coords(yf3Low,l3/4)]
 feedline_low.quarterarc_trench(rlow,xf4Low,yf4Low,orient='NE',npoints=20)
 
-xf5Low,yf5Low = [coords(xf4Low,-3*l3/4-arc/2+230),coords(yf4Low,rlow)]
-feedline_low.straight_trench(3*l3/4+arc/2-230,xf5Low,yf5Low,orient='H')
+xf5Low,yf5Low = [coords(xf4Low,-lfm),coords(yf4Low,rlow)]
+feedline_low.straight_trench(lfm,xf5Low,yf5Low,orient='H')
 
 # High Z feedline sections
-xf0High,yf0High = [coords(xf5Low,hs1/2),coords(yf5Low)]
-feedline_high.straight_trench(-hs1/2,xf0High,yf0High,orient='H')
+feedline_high = Trench(whigh,ghigh,poly_cell, layer=2)
 
-xf1High,yf1High = [coords(xf0High),coords(yf0High,rhigh + 2*ghigh + whigh)]
+xf0High,yf0High = [coords(xf5Low,hs1/2+42),coords(yf5Low)]
+feedline_high.straight_trench(hs1m/2-42,xf0High,yf0High,orient='H')
+
+xf1High,yf1High = [coords(xf0High),coords(yf0High,rhigh+2*ghigh + whigh)]
 feedline_high.halfarc_trench(rhigh,xf1High, yf1High,orient='W',npoints=40)
 
-xf2High,yf2High = [coords(xf1High),coords(yf1High,rhigh )]
-feedline_high.straight_trench(l3+l1-733/2-hs1/2,xf2High,yf2High,orient='H')
+xf2High,yf2High = [coords(xf1High),coords(yf1High,rhigh)]
+feedline_high.straight_trench(lf,xf2High,yf2High,orient='H')
 
-xf3High,yf3High = [coords(xf2High,l3+l1-733/2-hs1/2),coords(yf2High,rhigh + 2*ghigh + whigh)]
-feedline_high.quarterarc_trench(rhigh,xf3High,yf3High,orient='SE',npoints=20)
+xf2pHigh,yf2pHigh = [coords(xf1High,lf),coords(yf1High,2*rhigh+2*ghigh+whigh)]
+feedline_high.halfarc_trench(rhigh,xf2pHigh, yf2pHigh,orient='E',npoints=40)
 
-xf4High,yf4High = [coords(xf3High,rhigh),coords(yf3High)]
-feedline_high.straight_trench(arc/2,xf4High,yf4High,orient='V')
+xf2ppHigh,yf2ppHigh = [coords(xf2pHigh,-lfp),coords(yf2pHigh,rhigh)]
+feedline_high.straight_trench(lfp,xf2ppHigh,yf2ppHigh,orient='H')
 
-# Lower feedbond
-xf5High,yf5High = [coords(xf4High,-2*whigh-4*ghigh),coords(yf4High-arc/2)]
+xf3High,yf3High = [coords(xf2ppHigh),coords(yf2ppHigh,rhigh+2*ghigh+whigh)]
+feedline_high.quarterarc_trench(rhigh,xf3High,yf3High,orient='SW',npoints=20)
+
+xf4High,yf4High = [coords(xf3High,-rhigh-2*ghigh-whigh),coords(yf3High,arc/2)]
+feedline_high.straight_trench(-arc/2,xf4High,yf4High,orient='V')
+
+# Upper feedbond
+xf5High,yf5High = [coords(xf4High,-2*whigh-4*ghigh),coords(yf4High,-arc/2)]
 feed_lower = LayoutComponents(poly_cell, xf5High,yf5High, width=whigh, gap=ghigh, layer=2)
 feedbond = feed_lower.make_feedbond(arc/2,cc, ratio, bond_pad, 
-	xf4High, yf4High+arc/2, orientation='S')
+	xf4High, yf4High, orientation='S')
 
-# Lower feedbond removes
-#
-x0_fdRem_U, y0_fdRem_U = [coords(xf0Low,-rm_width/2 + wlow/2 + glow),coords(yf0Low,-l1)]
-feed_remove_U = BuildRect(poly_cell,rm_width, l1, layer = 3)
-feed_remove_U.make(x0_fdRem_U,y0_fdRem_U,layer=3)
+# Upper feed removes
+x0_fdRem_L, y0_fdRem_L = [coords(xf0Low,-rm_width/2 + wlow/2 + glow),coords(yf0Low,-l1)]
+feed_remove_L = BuildRect(poly_cell,rm_width, l1, layer = 3)
+feed_remove_L.make(x0_fdRem_L,y0_fdRem_L,layer=3)
 
-x1_fdRem_U, y1_fdRem_U = [coords(x0_fdRem_U + rad_feed),coords(yf1Low)]
-rs.make_halfarc(-rad_feed, rm_width, x1_fdRem_U, y1_fdRem_U, 
-	orientation='N', npoints=40, layer=3) 
+x1_fdRem_L, y1_fdRem_L = [coords(x0_fdRem_L + rad_feed),coords(yf1Low)]
+rs.make_halfarc(-rad_feed, rm_width, x1_fdRem_L, y1_fdRem_L, 
+	orientation='N', npoints=40, layer=3)
 
-x2_fdRem_U, y2_fdRem_U = [coords(x1_fdRem_U,rad_feed-rm_width),coords(y1_fdRem_U)]
-feed_remove_U = BuildRect(poly_cell,rm_width, l2+l3/4, layer = 3)
-feed_remove_U.make(x2_fdRem_U,y2_fdRem_U,layer=3)
+x2_fdRem_L, y2_fdRem_L = [coords(x1_fdRem_L,rad_feed-rm_width),coords(y1_fdRem_L)]
+feed_remove_L = BuildRect(poly_cell,rm_width, l2+l3/4, layer = 3)
+feed_remove_L.make(x2_fdRem_L,y2_fdRem_L,layer=3)
 
-x3_fdRem_U, y3_fdRem_U = [coords(x2_fdRem_U-rqarc+rm_width),coords(y2_fdRem_U,l2+l3/4)]
-rs.make_quarterarc(rqarc, -rm_width, x3_fdRem_U, y3_fdRem_U, 
+x3_fdRem_L, y3_fdRem_L = [coords(x2_fdRem_L-rqarc+rm_width),coords(y2_fdRem_L,l2+l3/4)]
+rs.make_quarterarc(rqarc, -rm_width, x3_fdRem_L, y3_fdRem_L, 
 	orientation='NE', npoints=20, layer=3) 
 
-x4_fdRem_U, y4_fdRem_U = [coords(x3_fdRem_U),coords(y3_fdRem_U,rqarc-rm_width)]
-feed_remove_U = BuildRect(poly_cell,-3*l3/4-arc/2+230-l2-733/2-hs1/2,rm_width, layer = 3)
-feed_remove_U.make(x4_fdRem_U,y4_fdRem_U,layer=3)
+x4_fdRem_L, y4_fdRem_L = [coords(x3_fdRem_L,-lfm+hs1/2+42),coords(y3_fdRem_L,rqarc-rm_width)]
+feed_remove_L = BuildRect(poly_cell,lfm-hs1/2-42,rm_width, layer = 3)
+feed_remove_L.make(x4_fdRem_L,y4_fdRem_L,layer=3)
 
-x5_fdRem_U, y5_fdRem_U = [coords(x4_fdRem_U,-3*l3/4-arc/2+230-l2-733/2-hs1/2),coords(y4_fdRem_U,rharc+rm_width)]
-rs.make_halfarc(rharc, rm_width, x5_fdRem_U, y5_fdRem_U, 
+x5_fdRem_L, y5_fdRem_L = [coords(x4_fdRem_L),coords(y4_fdRem_L,rharc+rm_width)]
+rs.make_halfarc(rharc, rm_width, x5_fdRem_L, y5_fdRem_L, 
 	orientation='W', npoints=40, layer=3) 
 
-x6_fdRem_U, y6_fdRem_U = [coords(x5_fdRem_U),coords(y5_fdRem_U,rharc)]
-feed_remove_U = BuildRect(poly_cell,l1+l3-733/2-hs1/2,rm_width, layer = 3)
-feed_remove_U.make(x6_fdRem_U,y6_fdRem_U,layer=3)
+x6_fdRem_L, y6_fdRem_L = [coords(x5_fdRem_L),coords(y5_fdRem_L,rharc)]
+feed_remove_L = BuildRect(poly_cell,lf,rm_width, layer = 3)
+feed_remove_L.make(x6_fdRem_L,y6_fdRem_L,layer=3)
 
-x7_fdRem_U, y7_fdRem_U = [coords(x6_fdRem_U,l1+l3-733/2-hs1/2),coords(y6_fdRem_U)]
-rs.make_quarterarc(-rqarc2, rm_width, x7_fdRem_U, y7_fdRem_U+rqarc2, 
-	orientation='NW', npoints=20, layer=3) 
+x6p_fdRem_L, y6p_fdRem_L = [coords(x5_fdRem_L,lf),coords(y5_fdRem_L,2*rharc+rm_width)]
+rs.make_halfarc(rharc, rm_width, x6p_fdRem_L, y6p_fdRem_L, 
+	orientation='E', npoints=40, layer=3) 
 
-x8_fdRem_U, y8_fdRem_U = [coords(x7_fdRem_U,rharc),coords(y7_fdRem_U,rqarc2)]
-feed_remove_U = BuildRect(poly_cell,rm_width, arc/2, layer = 3)
-feed_remove_U.make(x8_fdRem_U,y8_fdRem_U,layer=3)
+x6pp_fdRem_L, y6pp_fdRem_L = [coords(x6p_fdRem_L,-lfp),coords(y6p_fdRem_L,rharc)]
+feed_remove_L = BuildRect(poly_cell,lfp,rm_width, layer = 3)
+feed_remove_L.make(x6pp_fdRem_L,y6pp_fdRem_L,layer=3)
+
+x7_fdRem_L, y7_fdRem_L = [coords(x6pp_fdRem_L),coords(y6pp_fdRem_L)]
+rqarc2 = xf4High+rm_width-x7_fdRem_L-12
+rs.make_quarterarc(-rqarc2, rm_width, x7_fdRem_L, y7_fdRem_L-rqarc2+rm_width, 
+	orientation='SW', npoints=20, layer=3) 
+
+x8_fdRem_L, y8_fdRem_L = [coords(x7_fdRem_L,-rharc-rm_width),coords(y7_fdRem_L,arc/2)]
+feed_remove_L = BuildRect(poly_cell,rm_width, arc/2, layer = 3)
+feed_remove_L.make(x8_fdRem_L,y8_fdRem_L,layer=3)
 
 feed_remove = feed_lower.make_feedbond_remove(arc/2,cc, ratio, 
-        bond_pad, x8_fdRem_U,y8_fdRem_U+100,x8_fdRem_U,
-        y8_fdRem_U+arc/2,x8_fdRem_U+rm_width, orientation='S')
+        bond_pad, x8_fdRem_L,y8_fdRem_L+arc/2,x8_fdRem_L,
+        y8_fdRem_L+arc/2,x8_fdRem_L+rm_width, orientation='S')
+
+###############################################################
+
+
+# xf5High,yf5High = [coords(xf4High,-2*whigh-4*ghigh),coords(yf4High-arc/2)]
+# feed_lower = LayoutComponents(poly_cell, xf5High,yf5High, width=whigh, gap=ghigh, layer=2)
+# feedbond = feed_lower.make_feedbond(arc/2,cc, ratio, bond_pad, 
+# 	xf4High, yf4High+arc/2, orientation='S')
+
+# # Lower feedbond removes
+# #
+# x0_fdRem_U, y0_fdRem_U = [coords(xf0Low,-rm_width/2 + wlow/2 + glow),coords(yf0Low,-l1)]
+# feed_remove_U = BuildRect(poly_cell,rm_width, l1, layer = 3)
+# feed_remove_U.make(x0_fdRem_U,y0_fdRem_U,layer=3)
+
+# x1_fdRem_U, y1_fdRem_U = [coords(x0_fdRem_U + rad_feed),coords(yf1Low)]
+# rs.make_halfarc(-rad_feed, rm_width, x1_fdRem_U, y1_fdRem_U, 
+# 	orientation='N', npoints=40, layer=3) 
+
+# x2_fdRem_U, y2_fdRem_U = [coords(x1_fdRem_U,rad_feed-rm_width),coords(y1_fdRem_U)]
+# feed_remove_U = BuildRect(poly_cell,rm_width, l2+l3/4, layer = 3)
+# feed_remove_U.make(x2_fdRem_U,y2_fdRem_U,layer=3)
+
+# x3_fdRem_U, y3_fdRem_U = [coords(x2_fdRem_U-rqarc+rm_width),coords(y2_fdRem_U,l2+l3/4)]
+# rs.make_quarterarc(rqarc, -rm_width, x3_fdRem_U, y3_fdRem_U, 
+# 	orientation='NE', npoints=20, layer=3) 
+
+# x4_fdRem_U, y4_fdRem_U = [coords(x3_fdRem_U),coords(y3_fdRem_U,rqarc-rm_width)]
+# feed_remove_U = BuildRect(poly_cell,-3*l3/4-arc/2+230-l2-733/2-hs1/2,rm_width, layer = 3)
+# feed_remove_U.make(x4_fdRem_U,y4_fdRem_U,layer=3)
+
+# x5_fdRem_U, y5_fdRem_U = [coords(x4_fdRem_U,-3*l3/4-arc/2+230-l2-733/2-hs1/2),coords(y4_fdRem_U,rharc+rm_width)]
+# rs.make_halfarc(rharc, rm_width, x5_fdRem_U, y5_fdRem_U, 
+# 	orientation='W', npoints=40, layer=3) 
+
+# x6_fdRem_U, y6_fdRem_U = [coords(x5_fdRem_U),coords(y5_fdRem_U,rharc)]
+# feed_remove_U = BuildRect(poly_cell,l1+l3-733/2-hs1/2,rm_width, layer = 3)
+# feed_remove_U.make(x6_fdRem_U,y6_fdRem_U,layer=3)
+
+# x7_fdRem_U, y7_fdRem_U = [coords(x6_fdRem_U,l1+l3-733/2-hs1/2),coords(y6_fdRem_U)]
+# rs.make_quarterarc(-rqarc2, rm_width, x7_fdRem_U, y7_fdRem_U+rqarc2, 
+# 	orientation='NW', npoints=20, layer=3) 
+
+# x8_fdRem_U, y8_fdRem_U = [coords(x7_fdRem_U,rharc),coords(y7_fdRem_U,rqarc2)]
+# feed_remove_U = BuildRect(poly_cell,rm_width, arc/2, layer = 3)
+# feed_remove_U.make(x8_fdRem_U,y8_fdRem_U,layer=3)
+
+# feed_remove = feed_lower.make_feedbond_remove(arc/2,cc, ratio, 
+#         bond_pad, x8_fdRem_U,y8_fdRem_U+100,x8_fdRem_U,
+#         y8_fdRem_U+arc/2,x8_fdRem_U+rm_width, orientation='S')
 
 ###########################################################################
 # Make gds file and open up klayout

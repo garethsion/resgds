@@ -117,7 +117,6 @@ class Shapes:
         """
         Defines a straight conductor surrounded by two gap sections
         """
-        print('hi')
         if orientation == 'H':
             return [self.rect(l, gap, x0, y0), self.rect(l, gap, x0, y0 + gap + w)]
         if orientation == 'V':

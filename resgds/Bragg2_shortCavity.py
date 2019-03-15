@@ -9,7 +9,7 @@ import numpy as np
 #import psutil # Use to check if klayout is running already
 
 # Layout filename
-layout_file ='fab_files/SmallBragg2_HL_7,2G.gds'
+layout_file ='fab_files/ShortCavityBragg2_HL_7p2G.gds'
 
 # Parameters
 #__________________________________________________________
@@ -49,27 +49,53 @@ taper_length = 100
 
 cavity = Trench(wc, gc, poly_cell, layer = 2)
 
-cav_x0,cav_y0 = [coords(xb_strt),coords(yb_strt,-lcav1)]
-strait = cavity.straight_trench(lcav1-taper_length, cav_x0, cav_y0, orient='V')
+
+lcavity = 8108
+rcav = 100
+no_periods = 4
+cav_mirror = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
+lcav3p = 2*no_periods*cav_mirror.mirror_width()
+a1 = 3*np.pi*rlow 
+a2 = np.pi*rcav
+ls = (lcavity - a1 - a2 - 2*lcav3p - 2*taper_length)/2
+
+print(2*ls + 2*lcav3p + a1 + a2 + 2*taper_length)
+
+cav_x0,cav_y0 = [coords(xb_strt),coords(yb_strt,-ls/2)]
+strait = cavity.straight_trench(ls/2-taper_length, cav_x0, cav_y0, orient='V')
 
 cav_xtaper, cav_ytaper = [coords(xb_strt),coords(yb_strt,-taper_length)]
-
-# cavity.thinning_trench(w1, w2, rat, cav_xtaper, cav_ytaper, 
-#         taper_length, orientation='N',strait=strait)
-
 cavity.taper(wc, gc, wlow, glow, cav_x0, 
-        cav_y0+lcav1-taper_length, cav_x0, cav_y0+lcav1)
+        cav_y0+ls/2-taper_length, cav_x0, cav_y0+ls/2)
 
-cav_x1,cav_y1 = [coords(xb_strt,-rlow),coords(yb_strt,-lcav1)]
+cav_x1,cav_y1 = [coords(xb_strt,-rlow),coords(yb_strt,-ls/2)]
 cavity.halfarc_trench(rlow,cav_x1,cav_y1,orient='S',npoints=40)
 
-cav_x2,cav_y2 = [coords(xb_strt,-2*rlow-wlow-2*glow),coords(yb_strt,-lcav1)]
-cavity.straight_trench(lcav2,cav_x2,cav_y2,orient='V')
+cav_x2,cav_y2 = [coords(xb_strt,-2*rlow-wlow-2*glow),coords(yb_strt,-ls/2)]
+cavity.straight_trench(lcav2/3,cav_x2,cav_y2,orient='V')
 
-cav_x3,cav_y3 = [coords(xb_strt,-rlow),coords(yb_strt,lcav2-lcav1)]
+cav_x2q,cav_y2q = [coords(cav_x2,rcav+2*gc+wc),coords(cav_y2,lcav2/3)]
+cavity.quarterarc_trench(rcav,cav_x2q,cav_y2q,orient='NW',npoints=40)
+
+cav_x2s,cav_y2s = [coords(cav_x2q),coords(cav_y2q,rcav)]
+cavity.straight_trench(lcav3p,cav_x2s,cav_y2s,orient='H')
+
+cav_x2h,cav_y2h = [coords(cav_x2s,lcav3p),coords(cav_y2s,rlow+2*gc+wc)]
+cavity.halfarc_trench(rlow,cav_x2h,cav_y2h,orient='E',npoints=40)
+
+cav_x2s2,cav_y2s2 = [coords(cav_x2h),coords(cav_y2h,rlow)]
+cavity.straight_trench(-lcav3p,cav_x2s2,cav_y2s2,orient='H')
+
+cav_x2q2,cav_y2q2 = [coords(cav_x2s2,-lcav3p),coords(cav_y2s2,rcav+2*gc+wc)]
+cavity.quarterarc_trench(rcav,cav_x2q2,cav_y2q2,orient='SW',npoints=40)
+
+cav_x2s3,cav_y2s3 = [coords(cav_x2q2,-rcav-2*gc-wc),coords(cav_y2q2)]
+cavity.straight_trench(lcav3p,cav_x2s3,cav_y2s3,orient='V')
+
+cav_x3,cav_y3 = [coords(cav_x2s3,rlow+2*gc+wc),coords(cav_y2s3,lcav2/3)]
 cavity.halfarc_trench(rlow,cav_x3,cav_y3,orient='N',npoints=40)
 
-cav_x4,cav_y4 = [coords(xb_strt),coords(yb_strt,lcav2-lcav1-lcav3+taper_length)]
+cav_x4,cav_y4 = [coords(cav_x3,2*gc+wc),coords(cav_y3,-lcav3+taper_length)]
 cavend = cavity.straight_trench(lcav3-taper_length,cav_x4,cav_y4,orient='V')
 
 cavity.taper(wlow, glow, wc, gc, cav_x4, 
@@ -111,7 +137,7 @@ cav_harc_remove = rs.make_halfarc(rad, rm_width,
 
 # Bragg Mirror Sections [layer 2]
 ###########################################################################
-no_periods = 4
+
 highZ = bragg.Bragg(whigh, ghigh, lhigh, poly_cell, radius=rhigh, layer=2)
 lowZ = bragg.Bragg(wlow, glow, llow, poly_cell, radius=rlow, layer=2)
 

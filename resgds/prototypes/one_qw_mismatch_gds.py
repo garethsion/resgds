@@ -58,7 +58,6 @@ def mismatch(xstart, ystart, w1, w2, l1, l2, rad):
 
 	return mis,x4,y4
 
-
 df = pd.read_table('write_offsets.txt',sep=',',names=['x','y'])
 
 wrhead_xoff = df['x'].values[0]
@@ -68,7 +67,8 @@ print('wr_xoff = ', wrhead_xoff)
 print('wr_yoff = ', wrhead_yoff)
 
 # Layout filename
-layout_file ='fab_files/mirror_mismatch_xoff='+str(wrhead_yoff)+'_yoff='+str(wrhead_yoff)+'.gds'
+layout_file ='fab_files/one_qw_mismatch_xoff='+str(wrhead_yoff)+'_yoff='+str(wrhead_yoff)+'.gds'
+
 
 # Parameters
 #__________________________________________________________
@@ -76,8 +76,10 @@ sub_x, sub_y = [5000, 5000] # substrate dimensions
 wc, gc, lc = [8.11, 17.85, 8108.45] # Cavity width, gap, length
 # wlow was 41.81
 # whigh was 1
-wlow, llow = [39.81, 4051.32]  # Low Z section
+#wlow, llow = [39.81, 4051.32]  # Low Z section
 whigh, lhigh = [2, 4051.32] # High Z section
+wlow = whigh
+llow = lhigh
 glow, ghigh = [.5*(wc + 2*gc - wlow),.5*(wc + 2*gc - whigh)]
 
 rcav, rlow, rhigh = [50, 50, 50]
@@ -112,7 +114,7 @@ coords = lambda x,dx=0: x+dx
 
 lcav1, lcav2, arcc = cavlengths(lc, rcav)
 
-xb_strt,yb_strt = [coords(sub_x/2,-arcc)+xoff+wrhead_xoff,coords(sub_y/2,+wrhead_yoff)]
+xb_strt,yb_strt = [coords(sub_x/2-arcc)+xoff+wrhead_xoff,coords(sub_y/2,wrhead_yoff)]
 
 cav_x0,cav_y0 = [coords(xb_strt),coords(yb_strt,-lcav1)] 
 cav_cond = rs.straight_trench(lcav1,wc,gc, cav_x0, cav_y0, 'V')
@@ -147,7 +149,6 @@ for i in range(0,len(cav_cond)):
 	conductor = gdspy.fast_boolean(conductor,cavity, 'or', 
 		precision=1e-9, max_points=1000, layer=cond_layer)
 	# poly_cell.add(cavity)
-
 
 
 # CAVITY REMOVES
@@ -201,40 +202,6 @@ rlow = rhigh
 lh1, lh2, arch = [lcav1, lcav2, arcc]
 ll1, ll2, arcl = [lh1, lh2, arch]
 
-# High Impedance
-#
-mish_x0L,mish_y0L = [coords(cav_x0),coords(cav_y0,lh1)] 
-mis_L = rs.straight_trench(lh1,whigh,ghigh, mish_x0L, mish_y0L,'V')
-
-mish_x1L,mish_y1L = [coords(mish_x0L,-rhigh),coords(mish_y0L,lh1)]
-mis_L += rs.halfarc_trench(rhigh,whigh,ghigh,mish_x1L,mish_y1L,orient='N',npoints=40)
-
-mish_x2L,mish_y2L = [coords(mish_x1L,-rhigh-whigh-2*ghigh),coords(mish_y1L)] 
-mis_L += rs.straight_trench(-lh2,whigh,ghigh, mish_x2L, mish_y2L,'V')
-
-mish_x3L,mish_y3L = [coords(mish_x2L,-rhigh),coords(mish_y2L,-lh2)]
-mis_L += rs.halfarc_trench(rhigh,whigh,ghigh,mish_x3L,mish_y3L,orient='S',npoints=40)
-
-mish_x4L,mish_y4L = [coords(mish_x3L,-rhigh-whigh-2*ghigh),coords(mish_y3L)] 
-mis_L += rs.straight_trench(lh1,whigh,ghigh, mish_x4L, mish_y4L,'V')
-
-# High Z removes
-#
-mish_x0Lr,mish_y0Lr = [coords(cav_x0r),coords(cav_y0r,lh1)] 
-mis_Lr = [rs.rect(rm_width,lh1, mish_x0Lr, mish_y0Lr)]
-
-mish_x1Lr,mish_y1Lr = [coords(mish_x0Lr,-rad),coords(mish_y0Lr,lh1)]
-mis_Lr += [rs.halfarc(rad,rm_width,mish_x1Lr,mish_y1Lr,orientation='N',npoints=40)]
-
-mish_x2Lr,mish_y2Lr = [coords(mish_x1Lr,-rad-rm_width),coords(mish_y1Lr)] 
-mis_Lr += [rs.rect(rm_width,-lh2, mish_x2Lr, mish_y2Lr)]
-
-mish_x3Lr,mish_y3Lr = [coords(mish_x2Lr,-rad),coords(mish_y2Lr,-lh2)]
-mis_Lr += [rs.halfarc(rad,rm_width,mish_x3Lr,mish_y3Lr,orientation='S',npoints=40)]
-
-mish_x4Lr,mish_y4Lr = [coords(mish_x3Lr,-rad-rm_width),coords(mish_y3Lr)] 
-mis_Lr += [rs.rect(rm_width,lh1,mish_x4Lr, mish_y4Lr)]
-
 # Low Impedance
 #
 ll2s = ll1/2
@@ -244,8 +211,9 @@ lr = .5*(lhigh - lt)
 
 cent = 35 # offset for centering
 
-misl_x0L,misl_y0L = [coords(mish_x4L),coords(mish_y4L,ll1)] 
-mis_L += rs.straight_trench(ll1,wlow,glow, misl_x0L, misl_y0L,'V')
+misl_x0L,misl_y0L = [coords(cav_x0),coords(cav_y0,ll1)] 
+# misl_x0L,misl_y0L = [coords(mish_x4L),coords(mish_y4L,ll1)] 
+mis_L = rs.straight_trench(ll1,wlow,glow, misl_x0L, misl_y0L,'V')
 
 misl_x1L,misl_y1L = [coords(misl_x0L,-rlow),coords(misl_y0L,ll1)]
 mis_L += rs.halfarc_trench(rlow,wlow,glow,misl_x1L,misl_y1L,orient='N',npoints=40)
@@ -275,8 +243,8 @@ mis_L += rs.straight_trench(ll3s,wlow,glow, misl_x8L, misl_y8L,'H')
 
 # Low Z removes
 
-misl_x0Lr,misl_y0Lr = [coords(mish_x4Lr),coords(mish_y4Lr,ll1)] 
-mis_Lr += [rs.rect(rm_width,ll1,misl_x0Lr, misl_y0Lr)]
+misl_x0Lr,misl_y0Lr = [coords(cav_x0r),coords(cav_y0r,ll1)] 
+mis_Lr = [rs.rect(rm_width,ll1,misl_x0Lr, misl_y0Lr)]
 
 misl_x1Lr,misl_y1Lr = [coords(misl_x0Lr,-rad),coords(misl_y0Lr,ll1)]
 mis_Lr += [rs.halfarc(rad,rm_width,misl_x1Lr,misl_y1Lr,orientation='N',npoints=40)]
@@ -331,7 +299,7 @@ d2 = [(x0,y0-glow-wlow), (x0,y0-2*glow-wlow), (x1,ycent-w/2), (x1,ycent-(w/2)+yo
 
 feed = [d1,d2]
 l=l/2
-feed += [rs.rect(l,w, x1-l, y0-w/2-wlow/2)]
+feed += [rs.rect(l,w, x1-l, ycent-w/2)]
 
 for i in range(0,len(feed)):
 	infeed = gdspy.Polygon(feed[i],cond_layer)
@@ -366,47 +334,10 @@ for i in range(0,len(feedr)):
 # RHS MISMATCH SECTIONS
 #################################
 
-# High Impedance
-#
-
-mish_x0R,mish_y0R = [coords(cav_x8),coords(cav_y8,-lh1)] 
-mis_R = rs.straight_trench(-lh1,whigh,ghigh, mish_x0R, mish_y0R,'V')
-
-mish_x1R,mish_y1R = [coords(mish_x0R,rhigh+whigh+2*ghigh),coords(mish_y0R,-lh1)]
-mis_R += rs.halfarc_trench(rhigh,whigh,ghigh,mish_x1R,mish_y1R,orient='S',npoints=40)
-
-mish_x2R,mish_y2R = [coords(mish_x1R,rhigh),coords(mish_y1R)] 
-mis_R += rs.straight_trench(lh2,whigh,ghigh, mish_x2R, mish_y2R,'V')
-
-mish_x3R,mish_y3R = [coords(mish_x2R,rhigh+whigh+2*ghigh),coords(mish_y2R,lh2)]
-mis_R += rs.halfarc_trench(rhigh,whigh,ghigh,mish_x3R,mish_y3R,orient='N',npoints=40)
-
-mish_x4R,mish_y4R = [coords(mish_x3R,rhigh),coords(mish_y3R)] 
-mis_R += rs.straight_trench(-lh1,whigh,ghigh, mish_x4R, mish_y4R,'V')
-
-# High Z removes
-#
-mish_x0Rr,mish_y0Rr = [coords(cav_x8r),coords(cav_y8r,-lh1)] 
-mis_Rr = [rs.rect(rm_width,-lh1, mish_x0Rr, mish_y0Rr)]
-
-mish_x1Rr,mish_y1Rr = [coords(mish_x0Rr,rad+rm_width),coords(mish_y0Rr,-lh1)]
-mis_Rr += [rs.halfarc(rad,rm_width,mish_x1Rr,mish_y1Rr,orientation='S',npoints=40)]
-
-mish_x2Rr,mish_y2Rr = [coords(mish_x1Rr,rad),coords(mish_y1Rr)] 
-mis_Rr += [rs.rect(rm_width,lh2, mish_x2Rr, mish_y2Rr)]
-
-mish_x3Rr,mish_y3Rr = [coords(mish_x2Rr,rad+rm_width),coords(mish_y2Rr,lh2)]
-mis_Rr += [rs.halfarc(rad,rm_width,mish_x3Rr,mish_y3Rr,orientation='N',npoints=40)]
-
-mish_x4Rr,mish_y4Rr = [coords(mish_x3Rr,rad),coords(mish_y3Rr)] 
-mis_Rr += [rs.rect(rm_width,-lh1,mish_x4Rr, mish_y4Rr)]
-
-
 # Low Impedance
 #
-
-misl_x0R,misl_y0R = [coords(mish_x4R),coords(mish_y4R,-ll1)] 
-mis_R += rs.straight_trench(-ll1,wlow,glow, misl_x0R, misl_y0R,'V')
+misl_x0R,misl_y0R = [coords(cav_x8),coords(cav_y8,-ll1)] 
+mis_R = rs.straight_trench(-ll1,wlow,glow, misl_x0R, misl_y0R,'V')
 
 misl_x1R,misl_y1R = [coords(misl_x0R,rlow+2*glow+wlow),coords(misl_y0R,-ll1)]
 mis_R += rs.halfarc_trench(rlow,wlow,glow,misl_x1R,misl_y1R,orient='S',npoints=40)
@@ -435,8 +366,8 @@ mis_R += rs.straight_trench(-ll3s,wlow,glow, misl_x8R, misl_y8R,'H')
 # Low Z removes
 #
 
-misl_x0Rr,misl_y0Rr = [coords(mish_x4Rr),coords(mish_y4Rr,-ll1)] 
-mis_Rr += [rs.rect(rm_width,-ll1,misl_x0Rr, misl_y0Rr)]
+misl_x0Rr,misl_y0Rr = [coords(cav_x8r),coords(cav_y8r,-ll1)] 
+mis_Rr = [rs.rect(rm_width,-ll1,misl_x0Rr, misl_y0Rr)]
 
 misl_x1Rr,misl_y1Rr = [coords(misl_x0Rr,rad+rm_width),coords(misl_y0Rr,-ll1)]
 mis_Rr += [rs.halfarc(rad,rm_width,misl_x1Rr,misl_y1Rr,orientation='S',npoints=40)]
@@ -490,7 +421,7 @@ d2 = [(x0,y0-glow-wlow), (x0,y0-2*glow-wlow), (x1,ycent-w/2), (x1,ycent-(w/2)+yo
 
 feed = [d1,d2]
 l=l/2
-feed += [rs.rect(l,w, x1, y0-w/2-wlow/2)]
+feed += [rs.rect(l,w, x1, ycent-w/2)]
 
 for i in range(0,len(feed)):
 	outfeed = gdspy.Polygon(feed[i],cond_layer)
@@ -529,7 +460,6 @@ circuit = gdspy.fast_boolean(dots,conductor,'or',
 # poly_cell.add(dots)
 # poly_cell.add(conductor)
 poly_cell.add(circuit)
-
 
 ###########################################################################
 # Make gds file and open up klayout

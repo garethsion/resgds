@@ -257,50 +257,52 @@ misl_x3L,misl_y3L = [coords(misl_x2L,-rlow),coords(misl_y2L,-ll1)]
 mis_L += rs.halfarc_trench(rlow,wlow,glow,misl_x3L,misl_y3L,orient='S',npoints=40)
 
 misl_x4L,misl_y4L = [coords(misl_x3L,-rlow-wlow-2*glow),coords(misl_y3L)] 
-mis_L += rs.straight_trench(ll2s+lr+cent,wlow,glow, misl_x4L, misl_y4L,'V')
+mis_L += rs.straight_trench(ll2s+lr+cent+ll3s/3,wlow,glow, misl_x4L, misl_y4L,'V')
 
-misl_x5L,misl_y5L = [coords(misl_x4L,-rlow),coords(misl_y4L,ll2s+lr+cent)]
+misl_x5L,misl_y5L = [coords(misl_x4L,-rlow),coords(misl_y4L,ll2s+lr+cent+ll3s/3)]
 mis_L += rs.halfarc_trench(rlow,wlow,glow,misl_x5L,misl_y5L,orient='N',npoints=40)
 
 misl_x6L,misl_y6L = [coords(misl_x5L,-rlow-wlow-2*glow),coords(misl_y5L)] 
-mis_L += rs.straight_trench(-lr-ll2s+cent,wlow,glow, misl_x6L, misl_y6L,'V')
+mis_L += rs.straight_trench(-lr-ll2s+cent-ll3s/3,wlow,glow, misl_x6L, misl_y6L,'V')
 
-misl_x7L,misl_y7L = [coords(misl_x6L,-rlow),coords(misl_y6L,-lr-ll2s+cent)]
+misl_x7L,misl_y7L = [coords(misl_x6L,-rlow),coords(misl_y6L,-lr-ll2s+cent-ll3s/3)]
 mis_L += rs.quarterarc_trench(rlow,wlow,glow,misl_x7L,misl_y7L,orient='SE',npoints=40)
 
-ll3s = ll2s+arcl/2
-
-misl_x8L,misl_y8L = [coords(misl_x7L,-ll3s),coords(misl_y7L,-rlow-wlow-2*glow)] 
-mis_L += rs.straight_trench(ll3s,wlow,glow, misl_x8L, misl_y8L,'H')
+misl_x8L,misl_y8L = [coords(misl_x7L,-ll3s/3),coords(misl_y7L,-rlow-wlow-2*glow)] 
+mis_L += rs.straight_trench(ll3s/3,wlow,glow, misl_x8L, misl_y8L,'H')
 
 # Low Z removes
 
 misl_x0Lr,misl_y0Lr = [coords(mish_x4Lr),coords(mish_y4Lr,ll1)] 
 mis_Lr += [rs.rect(rm_width,ll1,misl_x0Lr, misl_y0Lr)]
 
-misl_x1Lr,misl_y1Lr = [coords(misl_x0Lr,-rad),coords(misl_y0Lr,ll1)]
-mis_Lr += [rs.halfarc(rad,rm_width,misl_x1Lr,misl_y1Lr,orientation='N',npoints=40)]
+# print(misl_x0L-2*rlow-glow-wlow/2-rm_width/2)
 
-misl_x2Lr,misl_y2Lr = [coords(misl_x1Lr,-rad-rm_width),coords(misl_y1Lr)] 
-mis_Lr += [rs.rect(rm_width,-ll1, misl_x2Lr, misl_y2Lr)]
+misl_x1Lr,misl_y1Lr = [coords(misl_x0L,-2*rlow-glow-wlow/2-rm_width/2),coords(misl_y0Lr)] 
+mis_Lr += [rs.rect(rm_width,ll1, misl_x1Lr, misl_y1Lr)]
 
-misl_x3Lr,misl_y3Lr = [coords(misl_x2Lr,-rad),coords(misl_y2Lr,-ll1)]
+rad = .5*(misl_x0Lr - misl_x1Lr - rm_width)
+
+misl_x2Lr,misl_y2Lr = [coords(misl_x1Lr,rad+rm_width),coords(misl_y0Lr,ll1)]
+mis_Lr += [rs.halfarc(rad,rm_width,misl_x2Lr,misl_y2Lr,orientation='N',npoints=40)]
+
+misl_x3Lr,misl_y3Lr = [coords(misl_x1Lr,-rad),coords(misl_y1Lr)]
 mis_Lr += [rs.halfarc(rad,rm_width,misl_x3Lr,misl_y3Lr,orientation='S',npoints=40)]
 
 misl_x4Lr,misl_y4Lr = [coords(misl_x3Lr,-rad-rm_width),coords(misl_y3Lr)] 
-mis_Lr += [rs.rect(rm_width,ll2s+lr+cent, misl_x4Lr, misl_y4Lr)]
+mis_Lr += [rs.rect(rm_width,ll2s+lr+cent+ll3s/3, misl_x4Lr, misl_y4Lr)]
 
-misl_x5Lr,misl_y5Lr = [coords(misl_x4Lr,-rad),coords(misl_y4Lr,ll2s+lr+cent)]
+misl_x5Lr,misl_y5Lr = [coords(misl_x4Lr,-rad),coords(misl_y4Lr,ll2s+lr+cent+ll3s/3)]
 mis_Lr += [rs.halfarc(rad,rm_width,misl_x5Lr,misl_y5Lr,orientation='N',npoints=40)]
 
 misl_x6Lr,misl_y6Lr = [coords(misl_x5Lr,-rad-rm_width),coords(misl_y5Lr)] 
-mis_Lr += [rs.rect(rm_width,-lr-ll2s+cent, misl_x6Lr, misl_y6Lr)]
+mis_Lr += [rs.rect(rm_width,-lr-ll2s+cent-ll3s/3, misl_x6Lr, misl_y6Lr)]
 
-misl_x7Lr,misl_y7Lr = [coords(misl_x6Lr,-rad),coords(misl_y6Lr,-lr-ll2s+cent)]
+misl_x7Lr,misl_y7Lr = [coords(misl_x6Lr,-rad),coords(misl_y6Lr,-lr-ll2s+cent-ll3s/3)]
 mis_Lr += [rs.quarterarc(rad,rm_width,misl_x7Lr,misl_y7Lr,orientation='SE',npoints=40)]
 
-misl_x8Lr,misl_y8Lr = [coords(misl_x7Lr,-ll3s),coords(misl_y7Lr,-rad-rm_width)] 
-mis_Lr += [rs.rect(ll3s,rm_width, misl_x8Lr, misl_y8Lr)]
+misl_x8Lr,misl_y8Lr = [coords(misl_x7Lr,-ll3s/3),coords(misl_y7Lr,-rad-rm_width)] 
+mis_Lr += [rs.rect(ll3s/3,rm_width, misl_x8Lr, misl_y8Lr)]
 
 
 for i in range(0,len(mis_L)):
@@ -418,19 +420,19 @@ misl_x3R,misl_y3R = [coords(misl_x2R,rlow+2*glow+wlow),coords(misl_y2R,ll1)]
 mis_R += rs.halfarc_trench(rlow,wlow,glow,misl_x3R,misl_y3R,orient='N',npoints=40)
 
 misl_x4R,misl_y4R = [coords(misl_x3R,rlow),coords(misl_y3R)] 
-mis_R += rs.straight_trench(-ll2s-lr-cent,wlow,glow, misl_x4R, misl_y4R,'V')
+mis_R += rs.straight_trench(-ll2s-lr-cent-ll3s/3,wlow,glow, misl_x4R, misl_y4R,'V')
 
-misl_x5R,misl_y5R = [coords(misl_x4R,rlow+2*glow+wlow),coords(misl_y4R,-ll2s-lr-cent)]
+misl_x5R,misl_y5R = [coords(misl_x4R,rlow+2*glow+wlow),coords(misl_y4R,-ll2s-lr-cent-ll3s/3)]
 mis_R += rs.halfarc_trench(rlow,wlow,glow,misl_x5R,misl_y5R,orient='S',npoints=40)
 
 misl_x6R,misl_y6R = [coords(misl_x5R,rlow),coords(misl_y5R)] 
-mis_R += rs.straight_trench(lr+ll2s-cent,wlow,glow, misl_x6R, misl_y6R,'V')
+mis_R += rs.straight_trench(lr+ll2s-cent+ll3s/3,wlow,glow, misl_x6R, misl_y6R,'V')
 
-misl_x7R,misl_y7R = [coords(misl_x6R,rlow+2*glow+wlow),coords(misl_y6R,lr+ll2s-cent)]
+misl_x7R,misl_y7R = [coords(misl_x6R,rlow+2*glow+wlow),coords(misl_y6R,lr+ll2s-cent+ll3s/3)]
 mis_R += rs.quarterarc_trench(rlow,wlow,glow,misl_x7R,misl_y7R,orient='NW',npoints=40)
 
-misl_x8R,misl_y8R = [coords(misl_x7R,ll3s),coords(misl_y7R,rlow)] 
-mis_R += rs.straight_trench(-ll3s,wlow,glow, misl_x8R, misl_y8R,'H')
+misl_x8R,misl_y8R = [coords(misl_x7R,ll3s/3),coords(misl_y7R,rlow)] 
+mis_R += rs.straight_trench(-ll3s/3,wlow,glow, misl_x8R, misl_y8R,'H')
 
 # Low Z removes
 #
@@ -448,19 +450,19 @@ misl_x3Rr,misl_y3Rr = [coords(misl_x2Rr,rad+rm_width),coords(misl_y2Rr,ll1)]
 mis_Rr += [rs.halfarc(rad,rm_width,misl_x3Rr,misl_y3Rr,orientation='N',npoints=40)]
 
 misl_x4Rr,misl_y4Rr = [coords(misl_x3Rr,rad),coords(misl_y3Rr)] 
-mis_Rr += [rs.rect(rm_width,-ll2s-lr-cent, misl_x4Rr, misl_y4Rr)]
+mis_Rr += [rs.rect(rm_width,-ll2s-lr-cent-ll3s/3, misl_x4Rr, misl_y4Rr)]
 
-misl_x5Rr,misl_y5Rr = [coords(misl_x4Rr,rad+rm_width),coords(misl_y4Rr,-ll2s-lr-cent)]
+misl_x5Rr,misl_y5Rr = [coords(misl_x4Rr,rad+rm_width),coords(misl_y4Rr,-ll2s-lr-cent-ll3s/3)]
 mis_Rr += [rs.halfarc(rad,rm_width,misl_x5Rr,misl_y5Rr,orientation='S',npoints=40)]
 
 misl_x6Rr,misl_y6Rr = [coords(misl_x5Rr,rad),coords(misl_y5Rr)] 
-mis_Rr += [rs.rect(rm_width,lr+ll2s-cent, misl_x6Rr, misl_y6Rr)]
+mis_Rr += [rs.rect(rm_width,lr+ll2s-cent+ll3s/3, misl_x6Rr, misl_y6Rr)]
 
-misl_x7Rr,misl_y7Rr = [coords(misl_x6Rr,rad+rm_width),coords(misl_y6Rr,lr+ll2s-cent)]
+misl_x7Rr,misl_y7Rr = [coords(misl_x6Rr,rad+rm_width),coords(misl_y6Rr,lr+ll2s-cent+ll3s/3)]
 mis_Rr += [rs.quarterarc(rad,rm_width,misl_x7Rr,misl_y7Rr,orientation='NW',npoints=40)]
 
-misl_x8Rr,misl_y8Rr = [coords(misl_x7Rr,ll3s),coords(misl_y7Rr,rad)] 
-mis_Rr += [rs.rect(-ll3s,rm_width, misl_x8Rr, misl_y8Rr)]
+misl_x8Rr,misl_y8Rr = [coords(misl_x7Rr,ll3s/3),coords(misl_y7Rr,rad)] 
+mis_Rr += [rs.rect(-ll3s/3,rm_width, misl_x8Rr, misl_y8Rr)]
 
 
 for i in range(0,len(mis_R)):

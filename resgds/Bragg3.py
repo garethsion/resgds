@@ -317,11 +317,11 @@ for i in range(0,len(feedrL)):
 	poly_cell.add(feedr)
 
 # Lower Feedbond Remove
-bondlr = 180
-bondwr = 4*bondl
+bondlr = 150
+bondwr = 6*bondl
 
 xbond = xf6High - bondwr/2 + ghigh + whigh/2
-ybond = yf6High - 300 - bondlr - 630
+ybond = yf6High - 300 - bondlr  - 700
 
 x0 = xf6High
 y0 = yf6High - 300
@@ -334,10 +334,10 @@ y1 = ybond + bondl
 x2 = xbond + bondwr - bondlr
 y2 = ybond + bondlr + 300
 
-fbondr = [rs.rect(bondwr,bondwr-bondlr, xbond, ybond)]
+fbondr = [rs.rect(bondwr,bondwr-2*bondlr, xbond, ybond)]
 
 trix0 = (x0 + ghigh + whigh/2) - rm_width/2
-triy1 = ybond + bondwr-bondlr
+triy1 = ybond + bondwr-2*bondlr
 
 d1 = [(trix0, y0), (trix0+rm_width, y0), (x1+bondwr, triy1), (x1, triy1)]
 fbondr += [d1]
@@ -475,12 +475,11 @@ for i in range(0,len(feedrU)):
 
 
 # Upper Feedbond Remove
-bondlr = 180
-bondwr = 4*bondl
+# bondlr = 150
+# bondwr = 6*bondl
 
 xbond = xf6High - bondwr/2 + ghigh + whigh/2
-# ybond = yf6High + 300 + bondlr + 630
-ybond = yf6High + 300 + bondlr + 630 - 180
+ybond = yf6High + 300 - bondlr  + 600
 
 x0 = xf6High
 y0 = yf6High + 300
@@ -493,13 +492,13 @@ y1 = ybond + bondl
 x2 = xbond + bondwr - bondlr
 y2 = ybond + bondlr + 300
 
-fbondr = [rs.rect(bondwr,bondwr-bondlr, xbond, ybond)]
+fbondr = [rs.rect(bondwr,bondwr-2*bondlr, xbond, ybond)]
 
-# trix0 = (x0 + ghigh + whigh/2) - rm_width/2
-# triy1 = ybond + bondwr-bondlr
+trix0 = (x0 + ghigh + whigh/2) - rm_width/2
+triy1 = ybond + bondlr-150
 
-# d1 = [(trix0, y0), (trix0+rm_width, y0), (x1+bondwr, triy1), (x1, triy1)]
-# fbondr += [d1]
+d1 = [(trix0, y0), (trix0+rm_width, y0), (x1+bondwr, triy1), (x1, triy1)]
+fbondr += [d1]
 
 for i in range(0,len(fbondr)):
 	feedbond_remove = gdspy.Polygon(fbondr[i],3)

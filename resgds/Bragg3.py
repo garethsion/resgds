@@ -222,9 +222,9 @@ xf1High,yf1High = [coords(xf0High,-l1),coords(yf0High,-rhigh)]
 feedline_high.halfarc_trench(rhigh,xf1High, yf1High,orient='W',npoints=40)
 
 xf2High,yf2High = [coords(xf1High),coords(yf1High,-rhigh-2*ghigh-whigh)]
-feedline_high.straight_trench(l2,xf2High,yf2High,orient='H')
+feedline_high.straight_trench(l2-543,xf2High,yf2High,orient='H')
 
-xf3High,yf3High = [coords(xf2High,l2),coords(yf2High,-rhigh)]
+xf3High,yf3High = [coords(xf2High,l2-543),coords(yf2High,-rhigh)]
 feedline_high.halfarc_trench(rhigh,xf3High, yf3High,orient='E',npoints=40)
 
 xf4High,yf4High = [coords(xf3High),coords(yf3High,-rhigh-2*ghigh-whigh)]
@@ -294,9 +294,9 @@ feedrL += [rs.halfarc(arcrad, rm_width, x5_fdRem_L, y5_fdRem_L,
 	orientation='W', npoints=40)] 
 
 x6_fdRem_L, y6_fdRem_L = [coords(x5_fdRem_L),coords(y5_fdRem_L,-arcrad-rm_width)]
-feedrL += [rs.rect(l2,rm_width,x6_fdRem_L,y6_fdRem_L)]
+feedrL += [rs.rect(l2-543,rm_width,x6_fdRem_L,y6_fdRem_L)]
 
-x7_fdRem_L, y7_fdRem_L = [coords(x6_fdRem_L,l2),coords(y6_fdRem_L,-arcrad)]
+x7_fdRem_L, y7_fdRem_L = [coords(x6_fdRem_L,l2-543),coords(y6_fdRem_L,-arcrad)]
 feedrL += [rs.halfarc(arcrad, rm_width, x7_fdRem_L, y7_fdRem_L, 
 	orientation='E', npoints=40)] 
 
@@ -321,7 +321,7 @@ bondlr = 150
 bondwr = 6*bondl
 
 xbond = xf6High - bondwr/2 + ghigh + whigh/2
-ybond = yf6High - 300 - bondlr  - 700
+ybond = yf6High - 300 - bondlr  - 750
 
 x0 = xf6High
 y0 = yf6High - 300
@@ -337,7 +337,7 @@ y2 = ybond + bondlr + 300
 fbondr = [rs.rect(bondwr,bondwr-2*bondlr, xbond, ybond)]
 
 trix0 = (x0 + ghigh + whigh/2) - rm_width/2
-triy1 = ybond + bondwr-2*bondlr
+triy1 = ybond - bondlr+bondl+bondw
 
 d1 = [(trix0, y0), (trix0+rm_width, y0), (x1+bondwr, triy1), (x1, triy1)]
 fbondr += [d1]
@@ -380,9 +380,9 @@ xf1High,yf1High = [coords(xf0High,-l1),coords(yf0High,rhigh+2*ghigh+whigh)]
 feedline_high.halfarc_trench(rhigh,xf1High, yf1High,orient='W',npoints=40)
 
 xf2High,yf2High = [coords(xf1High),coords(yf1High,rhigh)]
-feedline_high.straight_trench(l2,xf2High,yf2High,orient='H')
+feedline_high.straight_trench(l2-543,xf2High,yf2High,orient='H')
 
-xf3High,yf3High = [coords(xf2High,l2),coords(yf2High,rhigh+2*ghigh+whigh)]
+xf3High,yf3High = [coords(xf2High,l2-543),coords(yf2High,rhigh+2*ghigh+whigh)]
 feedline_high.halfarc_trench(rhigh,xf3High, yf3High,orient='E',npoints=40)
 
 xf4High,yf4High = [coords(xf3High),coords(yf3High,rhigh)]
@@ -451,9 +451,9 @@ feedrU += [rs.halfarc(arcrad, rm_width, x5_fdRem_U, y5_fdRem_U,
 	orientation='W', npoints=40)] 
 
 x6_fdRem_U, y6_fdRem_U = [coords(x5_fdRem_U),coords(y5_fdRem_U,arcrad)]
-feedrU += [rs.rect(l2,rm_width,x6_fdRem_U,y6_fdRem_U)]
+feedrU += [rs.rect(l2-543,rm_width,x6_fdRem_U,y6_fdRem_U)]
 
-x7_fdRem_U, y7_fdRem_U = [coords(x6_fdRem_U,l2),coords(y6_fdRem_U,arcrad+rm_width)]
+x7_fdRem_U, y7_fdRem_U = [coords(x6_fdRem_U,l2-543),coords(y6_fdRem_U,arcrad+rm_width)]
 feedrU += [rs.halfarc(arcrad, rm_width, x7_fdRem_U, y7_fdRem_U, 
 	orientation='E', npoints=40)] 
 

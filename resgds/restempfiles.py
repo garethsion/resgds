@@ -170,27 +170,27 @@ class ResTempFiles:
 			ya = ybond + bondwr
 
 			yb = ya - bondwr/2
-			triy = w/2+g+rm_width/2
+			triy = rm_width/2
 
 			d1 = [(xa,ya), (xa, ybond), (xa+2*bondhr,yb-triy),(xa+2*bondhr,yb+triy) ]
 			fbondr += [d1]
 
 		if(orientation == 'W'):
 
-			xbond = x0 - bondlength - bondh - rm_width#- bondw/2 + gfeed + wfeed/2
-			ybond = y0 - bondwr/2 + g + w/2# - feedlength - bondh - bondlength
+			xbond = x0 + 2*bondh#+ bondlength  - rm_width
+			ybond = y0 - bondwr/2 + g + w/2
 
 			sqw = rm_width + bondw -bondh
 			fbondr = [self.rs.rect(sqw,bondwr, xbond, ybond)]
 			
-			# xa = xbond + sqw
-			# ya = ybond + bondwr
+			xa = xbond-2*bondhr
+			ya = ybond + bondwr
 
-			# yb = ya - bondwr/2
-			# triy = w/2+g+rm_width/2
+			yb = ya - bondwr/2
+			triy = rm_width/2
 
-			# d1 = [(xa,ya), (xa, ybond), (xa+2*bondhr,yb-triy),(xa+2*bondhr,yb+triy) ]
-			# fbondr += [d1]
+			d1 = [(xbond,ya), (xbond, ybond), (xa,yb-triy),(xa,yb+triy) ]
+			fbondr += [d1]
 
 		return fbondr 
 
@@ -383,9 +383,10 @@ class ResTempFiles:
 
 		for i in range(0,len(input_shape)):
 			shape = gdspy.Polygon(input_shape[i],input_layer)
-			output_bool = gdspy.fast_boolean(bool_shape,shape, mode, 
+			bool_shape = gdspy.fast_boolean(bool_shape,shape,mode, 
 				precision=1e-9, max_points=1000, layer=output_layer)
-		return shape, output_bool
+
+		return bool_shape
 
 	def build(self,input_shape,cell,input_layer=0):
 

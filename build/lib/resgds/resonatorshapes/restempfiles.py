@@ -14,39 +14,39 @@ class ResTempFiles:
 
 	def lengths(self,w,g,r,l,lin=100,lout=100,no_arcs=4):
 
-	    arclength = self.arclength(w,g,r)
+		arclength = self.arclength(w,g,r)
 
-	    tot_arc_length = no_arcs * arclength
-	    tot_arc_length += arclength
+		tot_arc_length = no_arcs * arclength
+		tot_arc_length += arclength
 
-	    lremain = l - tot_arc_length - lin - lout 
-	    lremain += arclength
+		lremain = l - tot_arc_length - lin - lout 
+		lremain += arclength
 
-	    lstrait = lremain / no_arcs
+		lstrait = lremain / no_arcs
 
-	    ls = [lin]
-	    # l.append(arclength)
-	    ls.append((lstrait/2)-arclength/2)
-	    ls.append(lstrait)
-	    ls.append(lout)
+		ls = [lin]
+		# l.append(arclength)
+		ls.append((lstrait/2)-arclength/2)
+		ls.append(lstrait)
+		ls.append(lout)
 
-	    # arc = [arclength]
-	    # arc.append(arclength/2)
+		# arc = [arclength]
+		# arc.append(arclength/2)
 
-	    # print(3*lstrait + 4*arclength + arclength + lin + lout + 2*(lstrait/2 - arclength/2))
+		# print(3*lstrait + 4*arclength + arclength + lin + lout + 2*(lstrait/2 - arclength/2))
 
-	    return ls, arclength
+		return ls, arclength
 
 	def arclength(self,w,g,r):
-	    out_LHS = g
-	    out_RHS = 2*w + 3*g + 2*r 
-	        
-	    diameter = out_RHS - out_LHS - (w/2)
-	    
-	    arclength = .5 * diameter * np.pi
-	    arctot = 2*arclength
-	    
-	    return arctot
+		out_LHS = g
+		out_RHS = 2*w + 3*g + 2*r 
+			
+		diameter = out_RHS - out_LHS - (w/2)
+		
+		arclength = .5 * diameter * np.pi
+		arctot = 2*arclength
+		
+		return arctot
 
 	# def feedbond(x0,y0,w,g,feedlength=300,bondlength=600,bondh=150):
 
@@ -78,6 +78,29 @@ class ResTempFiles:
 
 	def feedbond(self,x0,y0,w,g,feedlength=300,bondlength=600,bondh=150,orientation='N'):
 
+		if(orientation == 'N'):
+			bondw = 4*bondh
+
+			xbond = x0 - .5*bondw + g 
+			ybond = y0 + bondw - bondh 
+			#- bondh + bondw + .5*w + g
+
+
+			feed = [self.__rs.rect(bondw,bondh, xbond, ybond)]
+			feed += [self.__rs.rect(bondh, feedlength,xbond,ybond-2*bondh)]
+			feed += [self.__rs.rect(bondh, feedlength,xbond+bondw-bondh,ybond-2*bondh)]
+
+			xa = xbond
+			ya = ybond-2*bondh
+
+			xb = xa+feedlength
+			# yb = ya-bondw/2-g-w/2
+			yb = ya - bondh
+
+			d1 = [(xa, ya), (xa+bondh, ya), (xb, yb), (xb-g, yb)]
+			d2 = [(xa+bondw-bondh,ya), (xa+bondw, ya), (xb+w+g, yb), (xb+w, yb)]
+			feed += [d1,d2]
+
 		if(orientation == 'E'):
 			bondw = 4*bondh
 
@@ -96,6 +119,27 @@ class ResTempFiles:
 
 			d1 = [(xa, ya), (xa, ya-bondh), (xb, yb+g+w), (xb, yb+2*g+w)]
 			d2 = [(xa, ya-bondw), (xa, ya-bondw+bondh), (xb, yb+g), (xb, yb)]
+			feed += [d1,d2]
+
+		if(orientation == 'S'):
+			bondw = 4*bondh
+
+			xbond = x0 - .5*bondw + g 
+			ybond = y0 - bondh - bondw - .5*w - g
+
+
+			feed = [self.__rs.rect(bondw,bondh, xbond, ybond)]
+			feed += [self.__rs.rect(bondh, feedlength,xbond,ybond+bondh)]
+			feed += [self.__rs.rect(bondh, feedlength,xbond+bondw-bondh,ybond+bondh)]
+
+			xa = xbond
+			ya = ybond+bondw-bondh
+
+			xb = xa+feedlength
+			yb = ya+bondw/2+g+w/2
+
+			d1 = [(xa, ya), (xa+bondh, ya), (xb, yb), (xb-g, yb)]
+			d2 = [(xa+bondw-bondh,ya), (xa+bondw, ya), (xb+w+g, yb), (xb+w, yb)]
 			feed += [d1,d2]
 
 		if(orientation == 'W'):
@@ -159,6 +203,28 @@ class ResTempFiles:
 		bondwr = 5*bondh
 		bondhr = bondh
 
+		if(orientation == 'N'):
+
+			xbond = x0 - bondlength - bondh - rm_width#- bondw/2 + gfeed + wfeed/2
+			ybond = y0 - bondwr/2 + g + w/2# - feedlength - bondh - bondlength
+
+			sqw = rm_width + bondw -bondh
+			fbondr = [self.__rs.rect(bondwr, sqw, xbond, ybond)]
+			
+			xa = xbond + bondwr
+			ya = ybond + 2*sqw 
+			ybond = ybond + sqw
+			# xa = xbond + bondwr
+			
+			yb = ya - bondwr/2
+			triy = rm_width/2
+
+			# d1 = [(xa,ya), (xa, ybond), (xa+2*bondhr,yb-triy),(xa+2*bondhr,yb+triy) ]
+			# d1 = [(xa,xa), (xa,xbond), (xa+2*bondhr,yb-triy), (xa+2*bondhr,yb+triy)]
+			# d1 = [(xa, ya), (xbond+.5*bondwr+rm_width,ybond), (xbond+.5*bondwr-rm_width,ybond), (xbond,ya)]
+			d1 = [(xa, ybond), (xbond+.5*bondwr+rm_width,ya), (xbond+.5*bondwr-rm_width,ya), (xbond,ybond)]
+			fbondr += [d1]
+
 		if(orientation == 'E'):
 
 			xbond = x0 - bondlength - bondh - rm_width#- bondw/2 + gfeed + wfeed/2
@@ -174,6 +240,28 @@ class ResTempFiles:
 			triy = rm_width/2
 
 			d1 = [(xa,ya), (xa, ybond), (xa+2*bondhr,yb-triy),(xa+2*bondhr,yb+triy) ]
+			fbondr += [d1]
+
+		if(orientation == 'S'):
+
+			xbond = x0 - bondlength - bondh - rm_width#- bondw/2 + gfeed + wfeed/2
+			ybond = y0 - bondwr + g + w/2# - feedlength - bondh - bondlength
+
+			sqw = rm_width + bondw -bondh
+			fbondr = [self.__rs.rect(bondwr, sqw, xbond, y0+.5*bondlength-.5*rm_width)]
+			
+			xa = xbond + bondwr
+			ya = ybond + sqw 
+			ybond = ybond + 2*sqw
+			# xa = xbond + bondwr
+			
+			yb = ya - bondwr/2
+			triy = rm_width/2
+
+			# d1 = [(xa,ya), (xa, ybond), (xa+2*bondhr,yb-triy),(xa+2*bondhr,yb+triy) ]
+			# d1 = [(xa,xa), (xa,xbond), (xa+2*bondhr,yb-triy), (xa+2*bondhr,yb+triy)]
+			# d1 = [(xa, ya), (xbond+.5*bondwr+rm_width,ybond), (xbond+.5*bondwr-rm_width,ybond), (xbond,ya)]
+			d1 = [(xa, ybond), (xbond+.5*bondwr+rm_width,ya), (xbond+.5*bondwr-rm_width,ya), (xbond,ybond)]
 			fbondr += [d1]
 
 		if(orientation == 'W'):

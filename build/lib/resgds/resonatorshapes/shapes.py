@@ -102,6 +102,13 @@ class Shapes:
 
     def triangle(self,x0,y0,x1,y1,x2,y2,x3,y3):
         return[(x0,y0),(x1,y1),(x2,y2),(x3,y3)]
+    
+    def right_angle_triangle(self, x0, y0, x1, y1):
+        return[(x0,y0),(x0,y1),(x1,y0)]
+    
+    def three_triangle(self, x0, y0, x1, y1, x2, y2):
+        return[(x0,y0), (x1,y1), (x2,y2)]
+        
 
 
     # def straight(self, l, w, gap, x0, y0, orientation):

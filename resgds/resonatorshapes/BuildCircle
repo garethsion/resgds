@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+"""
+    This program contains the class which allows for defining the gds patterns
+"""
+
+import numpy as np
+import gdspy
+from resgds.resonatorshapes import Shapes
+
+class BuildCircle():
+    def __init__(self, cell, rad, layer=0):
+        self.__cell = cell
+        self.__rs = Shapes(self.__cell)
+        self.__radius = rad
+        self.__layer = layer
+        return
+
+    def make(self, x0, y0, layer=0):
+        circle = self.__rs.circle(self.__radius, x0, y0)
+        cir = gdspy.Polygon(circle,layer)
+        self.__cell.add(cir)
+        return circle
+

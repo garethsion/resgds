@@ -1,5 +1,0 @@
-#!/bin/bash
-
-FOLDER=$PWD
-
-/Applications/klayout.scripts/KLayoutEditor.app/Contents/MacOS/KLayoutEditor.sh -s ${FOLDER}/${@}

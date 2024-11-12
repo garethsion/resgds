@@ -103,6 +103,11 @@ class Shapes:
     def triangle(self,x0,y0,x1,y1,x2,y2,x3,y3):
         return[(x0,y0),(x1,y1),(x2,y2),(x3,y3)]
 
+    def circle(self,x0, y0, rad, tol):
+        # Circle centered at (0, 0), with radius 2 and tolerance 0.1
+        circle = gdspy.Round((x0, y0), rad, tolerance=tol)
+        return circle
+
 
     # def straight(self, l, w, gap, x0, y0, orientation):
     #     """
